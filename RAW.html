@@ -286,10 +286,10 @@
 
   <div class="filters">
     <input type="text" id="fGradeSearch" placeholder="🔍 بحث بصنف أو رقم باتش..." class="search-box">
-    <select id="fYear"><option value="all">Years</option></select>
-    <select id="fMonth"><option value="all">Months</option></select>
-    <select id="fDay"><option value="all">Days</option></select>
-    <select id="fGrade"><option value="all">Items</option></select>
+    <select id="fYear"><option value="all">Year</option></select>
+    <select id="fMonth"><option value="all">Month</option></select>
+    <select id="fDay"><option value="all">Day</option></select>
+    <select id="fGrade"><option value="all">Item</option></select>
   </div>
 
   <div class="kpis">
@@ -486,16 +486,16 @@ function populateFilters(){
   const scopedFor = (excludeKey) => RAW.filter(r=>matchesFilters(r, f, excludeKey));
 
   const yearScope = scopedFor('yr');
-  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Years');
+  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Year');
 
   const monthScope = scopedFor('m');
-  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Months ');
+  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month ');
 
   const dayScope = scopedFor('dy');
-  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Days ');
+  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Day ');
 
   const gradeScope = scopedFor('gr');
-  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.grade))].filter(Boolean).sort(), v=>v, 'Items ');
+  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.grade))].filter(Boolean).sort(), v=>v, 'Item ');
 }
 function fillSelect(id, values, labelFn, allLabel){
   const sel = document.getElementById(id);
