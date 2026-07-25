@@ -236,7 +236,7 @@
   <div id="loginGate">
     <div class="login-box">
       <h2>تسجيل الدخول</h2>
-      <p>لوحات المنيف للأنابيب — للمصرح لهم فقط</p>
+      <p>المنيف للأنابيب — للمصرح لهم فقط</p>
       <input type="text" id="loginUser" placeholder="اسم المستخدم" autocomplete="username">
       <input type="password" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <button onclick="tryLogin()">دخول</button>
@@ -247,7 +247,7 @@
   <div id="navOverlay" onclick="document.getElementById('navSidebar').classList.remove('open'); this.classList.remove('open');"></div>
   <nav id="navSidebar">
     <button class="navClose" onclick="document.getElementById('navSidebar').classList.remove('open'); document.getElementById('navOverlay').classList.remove('open');">×</button>
-    <h4>لوحات المصنع</h4>
+    <h4>MMP </h4>
     <a href="LAB.html" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
       تحليل الاختبارات المعملية
@@ -275,7 +275,7 @@
     </div>
     <div class="status">
       <span class="dot"></span>
-      <span id="statusText">بيانات تجريبية — لسه مش متصل بالشيت</span>
+      <span id="statusText">بيانات تجريبية-لم يتم الأتصال </span>
       <button class="refresh-btn" onclick="loadData(true)">تحديث الآن</button>
     </div>
   </header>
@@ -286,12 +286,12 @@
 
   <div class="filters">
     <input type="text" id="fSizeSearch" placeholder="🔍 Search ..." class="search-box">
-    <select id="fYear"><option value="all">Years</option></select>
-    <select id="fMonth"><option value="all">Months</option></select>
-    <select id="fDay"><option value="all">Days</option></select>
-    <select id="fMaterial"><option value="all">Materials</option></select>
-    <select id="fLine"><option value="all">Lines </option></select>
-    <select id="fResult"><option value="all">Results</option></select>
+    <select id="fYear"><option value="all">Year</option></select>
+    <select id="fMonth"><option value="all">Month</option></select>
+    <select id="fDay"><option value="all">Day</option></select>
+    <select id="fMaterial"><option value="all">Material</option></select>
+    <select id="fLine"><option value="all">Line</option></select>
+    <select id="fResult"><option value="all">Result</option></select>
   </div>
 
   <div class="kpis">
@@ -358,7 +358,7 @@
           <th>Material B.N</th>
           <th>Order NO</th>
           <th class="col-size">Size</th>
-          <th>النتيجة</th>
+          <th>Result</th>
           <th>Th Min</th>
           <th>Th Max</th>
           <th>OD</th>
@@ -371,7 +371,7 @@
           <th>Methylene chloride</th>
           <th>Vi-cat</th>
           <th>Impact</th>
-          <th class="col-notes">Notes (PP)</th>
+          <th class="col-notes">Notes</th>
         </tr>
       </thead>
       <tbody id="testTableBody"></tbody>
@@ -380,7 +380,7 @@
     </div>
   </div>
 
-  <footer>لوحة تحليل الاختبارات المعملية · تحديث تلقائي كل 90 ثانية عند الاتصال بجوجل شيت · مصنع المنيف للأنابيب</footer>
+  <footer> تحليل الاختبارات المعملية · تحديث تلقائي كل 90 ثانية · مصنع المنيف للأنابيب</footer>
 </div>
 
 <script>
@@ -393,7 +393,7 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQiYC7XUuYzsqOQkKtxFH667BvpK0sroldpVvGwJ-V4r0bfbA2-ar-ZlsBPyBLcMBDsi5EKFwWTmxC/pub?gid=1555908756&single=true&output=csv";
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
-const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
+const MONTHS_AR = {1:'يناير',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
 const PASS_TARGET_PCT = 98; // الهدف المتفق عليه لنسبة النجاح
 
 let RAW = [];
@@ -404,7 +404,7 @@ let charts = {};
 
 async function loadData(manual){
   const statusEl = document.getElementById('statusText');
-  if(manual) statusEl.textContent = 'بيتحدّث دلوقتي...';
+  if(manual) statusEl.textContent = 'Update Now ...';
 
   if(SHEET_CSV_URL){
     try{
@@ -415,13 +415,13 @@ async function loadData(manual){
       document.getElementById('setupBanner').style.display = 'none';
       statusEl.textContent = 'متصل — آخر تحديث ' + new Date().toLocaleTimeString('ar-EG');
     }catch(err){
-      console.error('فشل تحميل الشيت:', err);
-      statusEl.textContent = 'تعذّر الاتصال بالشيت — بيعرض بيانات تجريبية';
+      console.error('فشل التحميل :', err);
+      statusEl.textContent = 'تعذّر الاتصال — بيعرض بيانات تجريبية';
       if(RAW.length === 0) RAW = normalizeRows(DEMO_DATA, false);
     }
   }else{
     RAW = normalizeRows(DEMO_DATA, false);
-    statusEl.textContent = 'بيانات تجريبية — لسه مش متصل بالشيت';
+    statusEl.textContent = 'بيانات تجريبية — غير متصل';
   }
 
   populateFilters();
@@ -879,6 +879,7 @@ const DEMO_DATA = [{"date": "2025-01-01", "material": "PE-80", "line": "PE-250",
 const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
+   '26': '26',
 };
 
 function checkLogin(){
