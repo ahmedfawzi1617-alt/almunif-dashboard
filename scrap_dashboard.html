@@ -217,6 +217,14 @@
   .login-box button:active{transform:scale(.98);}
   .login-error{color:var(--rose); font-size:12.5px; font-weight:700; margin-top:12px; min-height:16px;}
 
+  #scrapReportOverlay{
+    position:fixed; inset:0; z-index:998;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(3px);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  #scrapReportOverlay.open{ display:flex; }
+  .modal-label{display:block; font-size:12px; color:var(--text-1); font-weight:700; margin:0 0 6px; text-align:right;}
+
   #navFab{
     position:fixed; top:22px; right:22px; z-index:97;
     width:50px; height:50px; border-radius:50%; border:none; cursor:pointer;
@@ -243,6 +251,21 @@
       <input type="password" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <button onclick="tryLogin()">دخول</button>
       <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <div id="scrapReportOverlay" onclick="if(event.target===this) closeScrapReportModal();">
+    <div class="login-box" style="max-width:420px; text-align:right;">
+      <h2 style="text-align:center;">تقرير الهالك الشهري</h2>
+      <p style="text-align:center;">هيتحسب من البيانات المفلترة حاليًا في الداشبورد</p>
+      <label class="modal-label">عنوان الفترة (يظهر أعلى التقرير)</label>
+      <input type="text" id="reportPeriodLabel" placeholder="مثال: Jun-26 أو 1/1/2026-30/6/2026">
+      <label class="modal-label">إجمالي إنتاج PE للفترة (طن)</label>
+      <input type="number" id="reportProdPE" placeholder="مثال: 555.4" step="0.1">
+      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن)</label>
+      <input type="number" id="reportProdPVC" placeholder="مثال: 726.8" step="0.1">
+      <button onclick="generateScrapReport()">توليد التقرير</button>
+      <button onclick="closeScrapReportModal()" style="background:var(--surface-hi); color:var(--text-0); margin-top:8px;">إلغاء</button>
     </div>
   </div>
 
@@ -362,8 +385,16 @@
   </div>
 
   <div class="card">
-    <h3>تفاصيل أعلى أسباب الهالك</h3>
-    <div class="hint">أعلى 12 سبب حسب الوزن الإجمالي</div>
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+      <div>
+        <h3>تفاصيل أعلى أسباب الهالك</h3>
+        <div class="hint">أعلى 12 سبب حسب الوزن الإجمالي</div>
+      </div>
+      <button class="refresh-btn" onclick="openScrapReportModal()" style="display:flex; align-items:center; gap:7px; white-space:nowrap;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        تقرير الهالك الشهري
+      </button>
+    </div>
     <table>
       <thead>
         <tr>
@@ -763,6 +794,165 @@ function baseOptions(extra){
   }, extra);
 }
 
+/* ============================================================
+   تقرير الهالك الشهري — PE/PVC/TOTAL بنفس شكل التقرير الورقي
+   ============================================================ */
+function openScrapReportModal(){
+  const m = document.getElementById('fMonth').value;
+  const periodInput = document.getElementById('reportPeriodLabel');
+  if(!periodInput.value){
+    if(m && m!=='all'){
+      const [y,mo] = m.split('-');
+      periodInput.value = (MONTHS_AR[parseInt(mo)]||mo) + '-' + y.slice(2);
+    }
+  }
+  document.getElementById('scrapReportOverlay').classList.add('open');
+}
+function closeScrapReportModal(){
+  document.getElementById('scrapReportOverlay').classList.remove('open');
+}
+
+function generateScrapReport(){
+  const data = getFiltered();
+  if(!data.length){ alert('مفيش بيانات هالك مطابقة للفلتر الحالي.'); return; }
+
+  const periodLabel = document.getElementById('reportPeriodLabel').value.trim() || 'الفترة الحالية';
+  const prodPE = parseFloat(document.getElementById('reportProdPE').value) || 0;
+  const prodPVC = parseFloat(document.getElementById('reportProdPVC').value) || 0;
+  const prodTotal = prodPE + prodPVC;
+
+  const isPE = p => (p||'').toUpperCase().includes('PE');
+  const isPVC = p => (p||'').toUpperCase().includes('PVC');
+
+  // تجميع حسب العيب لكل مجموعة (PE / PVC)
+  const groups = {}; // { defect: {pe:{count,weight}, pvc:{count,weight}} }
+  data.forEach(r=>{
+    const defect = r.defect_ar || r.defect_en || 'غير محدد';
+    if(!groups[defect]) groups[defect] = { pe:{count:0,weight:0}, pvc:{count:0,weight:0} };
+    if(isPE(r.product_type) && !isPVC(r.product_type)){
+      groups[defect].pe.count++; groups[defect].pe.weight += r.weight;
+    }else if(isPVC(r.product_type)){
+      groups[defect].pvc.count++; groups[defect].pvc.weight += r.weight;
+    }
+  });
+
+  const totalPE = Object.values(groups).reduce((s,g)=>s+g.pe.weight,0);
+  const totalPVC = Object.values(groups).reduce((s,g)=>s+g.pvc.weight,0);
+  const grandTotal = totalPE + totalPVC;
+
+  const rows = Object.entries(groups)
+    .map(([defect,g])=>({
+      defect,
+      peCount:g.pe.count, peWeight:g.pe.weight,
+      pvcCount:g.pvc.count, pvcWeight:g.pvc.weight,
+      totalCount:g.pe.count+g.pvc.count, totalWeight:g.pe.weight+g.pvc.weight
+    }))
+    .sort((a,b)=>b.totalWeight-a.totalWeight);
+
+  const pct = (v,t) => t ? (v/t*100).toFixed(0)+'%' : '0%';
+  const nz = (v) => v ? fmtNum(v) : '';
+  const nzc = (v) => v ? v : '';
+
+  const bodyRows = rows.map(r=>`
+    <tr>
+      <td class="defect-cell">${r.defect}</td>
+      <td>${nzc(r.peCount)}</td><td>${nz(r.peWeight)}</td><td>${pct(r.peWeight,totalPE)}</td>
+      <td>${nzc(r.pvcCount)}</td><td>${nz(r.pvcWeight)}</td><td>${pct(r.pvcWeight,totalPVC)}</td>
+      <td>${nzc(r.totalCount)}</td><td>${nz(r.totalWeight)}</td><td>${pct(r.totalWeight,grandTotal)}</td>
+    </tr>`).join('');
+
+  const scrapPctPE = prodPE ? ((totalPE/1000)/prodPE*100).toFixed(2)+'%' : '—';
+  const scrapPctPVC = prodPVC ? ((totalPVC/1000)/prodPVC*100).toFixed(2)+'%' : '—';
+  const scrapPctTotal = prodTotal ? ((grandTotal/1000)/prodTotal*100).toFixed(2)+'%' : '—';
+
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تقرير الهالك — ${periodLabel}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{font-family:'Cairo',sans-serif; color:#111; margin:0; padding:26px 30px; background:#fff;}
+  .print-bar{position:sticky; top:0; background:#fff; padding:10px 0 16px; margin-bottom:14px; border-bottom:2px solid #eee; display:flex; justify-content:flex-end; gap:10px;}
+  .print-bar button{font-family:inherit; font-size:14px; font-weight:700; padding:9px 18px; border-radius:8px; border:none; cursor:pointer; background:#2C3E6B; color:#fff;}
+  header{text-align:center; margin-bottom:16px;}
+  header .period{font-size:14px; font-weight:700; color:#2C3E6B; text-decoration:underline; margin-bottom:4px;}
+  header .title{font-size:16px; font-weight:700; color:#2C3E6B; text-decoration:underline;}
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th, td{border:1px solid #999; padding:5px 6px; text-align:center;}
+  .defect-cell{text-align:right; font-weight:600;}
+  thead tr.group-row th{background:#2C3E6B; color:#fff; font-size:12.5px; padding:6px;}
+  thead tr.sub-row th{background:#eef1f6; font-size:11px; font-weight:700;}
+  tbody tr:nth-child(even){background:#fafafa;}
+  tfoot td{font-weight:800; background:#dfe4ee;}
+  tfoot tr.total-row td{background:#2C3E6B; color:#fff;}
+  tfoot tr.prod-row td{background:#4a6fa5; color:#fff;}
+  tfoot tr.pct-row td{color:#C0392B; font-weight:800; border-top:none;}
+  footer{text-align:center; font-size:11px; color:#888; margin-top:22px; font-style:italic;}
+  @media print{
+    .print-bar{display:none;}
+    body{padding:12px 16px;}
+  }
+</style>
+</head>
+<body>
+  <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
+  <header>
+    <div class="period">${periodLabel}</div>
+    <div class="title">Scrap And Defect details (PE- PVC)</div>
+  </header>
+  <table>
+    <thead>
+      <tr class="group-row">
+        <th rowspan="2"></th>
+        <th colspan="3">PE</th>
+        <th colspan="3">PVC</th>
+        <th colspan="3">TOTAL</th>
+      </tr>
+      <tr class="sub-row">
+        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
+        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
+        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
+      </tr>
+      <tr><th class="defect-cell" style="background:#f7f7f7;">العيب</th><th colspan="9"></th></tr>
+    </thead>
+    <tbody>${bodyRows}</tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td>الإجمالي</td>
+        <td colspan="2">${fmtNum(totalPE)} kg</td><td></td>
+        <td colspan="2">${fmtNum(totalPVC)} kg</td><td></td>
+        <td colspan="2">${fmtNum(grandTotal)} kg</td><td></td>
+      </tr>
+      <tr class="prod-row">
+        <td>Total production</td>
+        <td colspan="2">${prodPE ? prodPE+' ton' : '—'}</td><td></td>
+        <td colspan="2">${prodPVC ? prodPVC+' ton' : '—'}</td><td></td>
+        <td colspan="2">${prodTotal ? prodTotal.toFixed(1)+' ton' : '—'}</td><td></td>
+      </tr>
+      <tr class="pct-row">
+        <td></td>
+        <td colspan="3">${scrapPctPE}</td>
+        <td colspan="3">${scrapPctPVC}</td>
+        <td colspan="3">${scrapPctTotal}</td>
+      </tr>
+    </tfoot>
+  </table>
+  <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة تحليل الهالك — المنيف للأنابيب</footer>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if(!win){ alert('المتصفح منع فتح نافذة جديدة. اسمح بالنوافذ المنبثقة (Pop-ups) لهذا الموقع وجرب تاني.'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  closeScrapReportModal();
+}
+function fmtNum(n){ return Math.round(n*10)/10; }
+
 /* ---------- بدء التشغيل ---------- */
 loadData(false);
 setInterval(()=>{ if(SHEET_CSV_URL) loadData(false); }, REFRESH_MS);
@@ -790,6 +980,8 @@ const DEMO_DATA = [{"date": "2026-01-01", "product_type": "PE-100", "machine": "
 const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
+    '26': '26',
+
 };
 
 function checkLogin(){
