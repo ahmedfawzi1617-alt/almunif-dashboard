@@ -369,7 +369,7 @@
     </div>
   </div>
 
-  <footer>لوحة تحليل المواد الخام · تحديث تلقائي كل 90 ثانية عند الاتصال بجوجل شيت · مصنع المنيف للأنابيب</footer>
+  <footer>لوحة تحليل المواد الخام · تحديث تلقائي كل 90 ثانية عند الاتصال · مصنع المنيف للأنابيب</footer>
 </div>
 
 <script>
@@ -713,9 +713,9 @@ function exportReport(){
   const detailSections = data.map((d,i)=>{
     return `
     <div class="sample-block">
-      <h3 class="pass-title">عينة رقم ${i+1} — الصنف: ${esc(d.grade)} — الباتش: ${esc(d.batch_no)}</h3>
+      <h3 class="pass-title">Sample NO  ${i+1} — Item: ${esc(d.grade)} — Batch NO: ${esc(d.batch_no)}</h3>
       <table class="info-table">
-        <tr><th>التاريخ</th><td>${esc(d.date)}</td><th>رقم التقرير</th><td>${esc(d.report_no)}</td></tr>
+        <tr><th>Date</th><td>${esc(d.date)}</td><th>Report NO </th><td>${esc(d.report_no)}</td></tr>
         <tr><th>Volatile</th><td>${esc(d.volatile)}</td><th>Density</th><td>${esc(d.density)}</td></tr>
       </table>
       <table class="prop-table">
@@ -825,7 +825,6 @@ const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
     '26': '26',
-
 };
 
 function checkLogin(){
