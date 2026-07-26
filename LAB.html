@@ -362,7 +362,7 @@
           <th>Material B.N</th>
           <th>Order NO</th>
           <th class="col-size">Size</th>
-          <th>النتيجة</th>
+          <th>Result</th>
           <th>Th Min</th>
           <th>Th Max</th>
           <th>OD</th>
@@ -375,7 +375,7 @@
           <th>Methylene chloride</th>
           <th>Vi-cat</th>
           <th>Impact</th>
-          <th class="col-notes">Notes (PP)</th>
+          <th class="col-notes">Notes</th>
         </tr>
       </thead>
       <tbody id="testTableBody"></tbody>
@@ -518,13 +518,13 @@ function populateFilters(){
   fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month');
 
   const dayScope = scopedFor('dy');
-  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Days');
+  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Day');
 
   const matScope = scopedFor('mat');
   fillSelect('fMaterial', [...new Set(matScope.map(r=>r.material))].filter(Boolean).sort(), v=>v, 'Material');
 
   const lineScope = scopedFor('ln');
-  fillSelect('fLine', [...new Set(lineScope.map(r=>r.line))].filter(Boolean).sort(), v=>v, 'Lines');
+  fillSelect('fLine', [...new Set(lineScope.map(r=>r.line))].filter(Boolean).sort(), v=>v, 'Line');
 
   const resultScope = scopedFor('rs');
   fillSelect('fResult', [...new Set(resultScope.map(r=>r.overall_result))].filter(Boolean).sort(), v=>v==='pass'?'PASS':v==='fail'?'FAIL':v, 'Result');
