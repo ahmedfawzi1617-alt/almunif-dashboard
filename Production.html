@@ -564,18 +564,20 @@ function populateFilters(){
 
   const machineScope = scopedFor('mc');
   fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'Machine ');
+
+  const colorScope = scopedFor('cl');
+  fillSelect('fColor', [...new Set(colorScope.map(r=>r.color))].filter(Boolean).sort(), v=>v, 'Color ');
 }
-const colorScope = scopedFor('cl');
-fillSelect('fColor', [...new Set(colorScope.map(r=>r.color))].filter(Boolean).sort(), v=>v, 'Color ');
+function fillSelect(id, values, labelFn, allLabel){
+  const sel = document.getElementById(id);
   const current = sel.value || 'all';
   sel.innerHTML = `<option value="all">${allLabel}</option>` + values.map(v=>`<option value="${v}">${labelFn(v)}</option>`).join('');
   if(values.includes(current) || values.map(String).includes(current)) sel.value = current;
   else sel.value = 'all';
 }
-['fYear','fMonth','fDay','fGrade','fMachine'].forEach(id=>{
+['fYear','fMonth','fDay','fGrade','fMachine','fColor'].forEach(id=>{
   document.addEventListener('change', e=>{ if(e.target.id===id){ populateFilters(); renderAll(); } });
 });
-['fYear','fMonth','fDay','fGrade','fMachine','fColor'].forEach(id=>{
 document.getElementById('fGradeSearch').addEventListener('input', ()=>{
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(()=>{ populateFilters(); renderAll(); }, 200);
@@ -588,20 +590,20 @@ function readFilterValues(){
     dy: document.getElementById('fDay').value,
     gr: document.getElementById('fGrade').value,
     mc: document.getElementById('fMachine').value,
+    cl: document.getElementById('fColor').value,
     sq: document.getElementById('fGradeSearch').value.trim().toLowerCase(),
   };
 }
-cl: document.getElementById('fColor').value,
-  function matchesFilters(r, f, exclude){
+function matchesFilters(r, f, exclude){
   if(exclude!=='yr' && f.yr!=='all' && r.date.slice(0,4)!==f.yr) return false;
   if(exclude!=='m' && f.m!=='all' && r.date.slice(0,7)!==f.m) return false;
   if(exclude!=='dy' && f.dy!=='all' && String(parseInt(r.date.slice(8,10)))!==f.dy) return false;
   if(exclude!=='gr' && f.gr!=='all' && r.product_type!==f.gr) return false;
   if(exclude!=='mc' && f.mc!=='all' && r.machine!==f.mc) return false;
   if(exclude!=='sq' && f.sq!=='' && !((r.order_no||'')+' '+(r.customer||'')+' '+(r.product||'')).toLowerCase().includes(f.sq)) return false;
+  if(exclude!=='cl' && f.cl!=='all' && r.color!==f.cl) return false;
   return true;
 }
-if(exclude!=='cl' && f.cl!=='all' && r.color!==f.cl) return false;
 function getFiltered(){
   const f = readFilterValues();
   return RAW.filter(r=>matchesFilters(r, f, null));
