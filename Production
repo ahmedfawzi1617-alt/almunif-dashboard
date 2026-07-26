@@ -236,7 +236,7 @@
   <div id="loginGate">
     <div class="login-box">
       <h2>تسجيل الدخول</h2>
-      <p> المنيف للأنابيب — للمصرح لهم فقط</p>
+      <p>لوحات المنيف للأنابيب — للمصرح لهم فقط</p>
       <input type="text" id="loginUser" placeholder="اسم المستخدم" autocomplete="username">
       <input type="password" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <button onclick="tryLogin()">دخول</button>
@@ -247,7 +247,7 @@
   <div id="navOverlay" onclick="document.getElementById('navSidebar').classList.remove('open'); this.classList.remove('open');"></div>
   <nav id="navSidebar">
     <button class="navClose" onclick="document.getElementById('navSidebar').classList.remove('open'); document.getElementById('navOverlay').classList.remove('open');">×</button>
-    <h4>MMP EGYPT </h4>
+    <h4>لوحات المصنع</h4>
     <a href="LAB.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
       تحليل الاختبارات المعملية
@@ -279,7 +279,7 @@
     </div>
     <div class="status">
       <span class="dot"></span>
-      <span id="statusText">بيانات تجريبية —  غير متصل</span>
+      <span id="statusText">بيانات تجريبية — لسه مش متصل بالشيت</span>
       <button class="refresh-btn" onclick="loadData(true)">تحديث الآن</button>
     </div>
   </header>
@@ -290,11 +290,11 @@
 
   <div class="filters">
     <input type="text" id="fGradeSearch" placeholder="🔍 بحث برقم طلبية أو عميل أو منتج..." class="search-box">
-    <select id="fYear"><option value="all">Year </option></select>
-    <select id="fMonth"><option value="all">Month </option></select>
-    <select id="fDay"><option value="all">Day </option></select>
-    <select id="fGrade"><option value="all">Type </option></select>
-    <select id="fMachine"><option value="all">Machine </option></select>
+    <select id="fYear"><option value="all">كل السنين</option></select>
+    <select id="fMonth"><option value="all">كل الشهور</option></select>
+    <select id="fDay"><option value="all">كل الأيام</option></select>
+    <select id="fGrade"><option value="all">كل الأنواع</option></select>
+    <select id="fMachine"><option value="all">كل الماكينات</option></select>
   </div>
 
   <div class="kpis">
@@ -355,18 +355,18 @@
     <table>
       <thead>
         <tr>
-          <th class="col-date">Date</th>
-          <th>Type</th>
-          <th>Machine</th>
-          <th class="col-size">Size</th>
-          <th>Length</th>
-          <th> Order NO</th>
-          <th>Quantity (Pcs)</th>
-          <th>Quantity (KG)</th>
-          <th>Color</th>
-          <th>Customer</th>
-          <th>Scrap (KG)</th>
-          <th>Scrap %</th>
+          <th class="col-date">التاريخ</th>
+          <th>النوع</th>
+          <th>الماكينة</th>
+          <th class="col-size">المنتج</th>
+          <th>الطول</th>
+          <th>رقم الطلبية</th>
+          <th>الكمية (قطعة)</th>
+          <th>الكمية (كجم)</th>
+          <th>اللون</th>
+          <th>العميل</th>
+          <th>هالك (كجم)</th>
+          <th>هالك %</th>
         </tr>
       </thead>
       <tbody id="testTableBody"></tbody>
@@ -388,7 +388,7 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=390647355&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
-const MONTHS_AR = {1:'JAN',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
+const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
 
 let RAW = [];
 let charts = {};
@@ -397,7 +397,7 @@ if(window.ChartDataLabels){ Chart.register(ChartDataLabels); }
 
 async function loadData(manual){
   const statusEl = document.getElementById('statusText');
-  if(manual) statusEl.textContent = 'يتم التحديث الآن ...';
+  if(manual) statusEl.textContent = 'بيتحدّث دلوقتي...';
 
   if(SHEET_CSV_URL){
     try{
@@ -409,12 +409,12 @@ async function loadData(manual){
       statusEl.textContent = 'متصل — آخر تحديث ' + new Date().toLocaleTimeString('ar-EG');
     }catch(err){
       console.error('فشل تحميل الشيت:', err);
-      statusEl.textContent = 'تعذّر الاتصال  — بيعرض بيانات تجريبية';
+      statusEl.textContent = 'تعذّر الاتصال بالشيت — بيعرض بيانات تجريبية';
       if(RAW.length === 0) RAW = normalizeRows(DEMO_DATA, false);
     }
   }else{
     RAW = normalizeRows(DEMO_DATA, false);
-    statusEl.textContent = 'بيانات تجريبية —غير متصل ';
+    statusEl.textContent = 'بيانات تجريبية — لسه مش متصل بالشيت';
   }
 
   populateFilters();
@@ -497,19 +497,19 @@ function populateFilters(){
   const scopedFor = (excludeKey) => RAW.filter(r=>matchesFilters(r, f, excludeKey));
 
   const yearScope = scopedFor('yr');
-  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Year ');
+  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'كل السنين');
 
   const monthScope = scopedFor('m');
-  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month ');
+  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'كل الشهور');
 
   const dayScope = scopedFor('dy');
-  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Day ');
+  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'كل الأيام');
 
   const gradeScope = scopedFor('gr');
-  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type))].filter(Boolean).sort(), v=>v, 'Type ');
+  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type))].filter(Boolean).sort(), v=>v, 'كل الأنواع');
 
   const machineScope = scopedFor('mc');
-  fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'Machine ');
+  fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'كل الماكينات');
 }
 function fillSelect(id, values, labelFn, allLabel){
   const sel = document.getElementById(id);
@@ -711,7 +711,7 @@ function baseOptions(extra){
 function exportReport(){
   const btn = document.getElementById('exportBtn');
   const data = [...getFiltered()].sort((a,b)=>a.date.localeCompare(b.date));
-  if(!data.length){ alert('مفيش إنتاج مطابق للفلتر الحالي عشان نصدّرها.'); return; }
+  if(!data.length){ alert('مفيش عينات مطابقة للفلتر الحالي عشان نصدّرها.'); return; }
 
   const now = new Date();
   const genDate = now.toLocaleDateString('ar-EG') + ' — ' + now.toLocaleTimeString('ar-EG');
@@ -795,7 +795,7 @@ function exportReport(){
 
   <h3 class="section-title">ملخص أوامر الإنتاج</h3>
   <table class="summary-table">
-    <thead><tr><th>#</th><th>]Date</th><th>Type</th><th>Machine</th><th>Order NO </th><th>Customer</th><th>Quantity (KG)</th></tr></thead>
+    <thead><tr><th>#</th><th>التاريخ</th><th>النوع</th><th>الماكينة</th><th>رقم الطلبية</th><th>العميل</th><th>الكمية (كجم)</th></tr></thead>
     <tbody>${summaryRows}</tbody>
   </table>
 
@@ -832,7 +832,8 @@ const DEMO_DATA = [{"date": "2026-01-01", "product_type": "PE-100", "machine": "
 const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
-  '26': '26',  
+  '26': '26',
+
 };
 
 function checkLogin(){
