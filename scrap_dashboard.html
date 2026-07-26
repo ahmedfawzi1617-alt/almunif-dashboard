@@ -864,9 +864,9 @@ function generateScrapReport(){
       <td>${nzc(r.totalCount)}</td><td>${nz(r.totalWeight)}</td><td>${pct(r.totalWeight,grandTotal)}</td>
     </tr>`).join('');
 
-  const scrapPctPE = prodPE ? ((totalPE/1000)/prodPE*100).toFixed(2)+'%' : '—';
-  const scrapPctPVC = prodPVC ? ((totalPVC/1000)/prodPVC*100).toFixed(2)+'%' : '—';
-  const scrapPctTotal = prodTotal ? ((grandTotal/1000)/prodTotal*100).toFixed(2)+'%' : '—';
+  const scrapPctPE = (prodPE || totalPE) ? ((totalPE/1000)/(prodPE + totalPE/1000)*100).toFixed(2)+'%' : '—';
+  const scrapPctPVC = (prodPVC || totalPVC) ? ((totalPVC/1000)/(prodPVC + totalPVC/1000)*100).toFixed(2)+'%' : '—';
+  const scrapPctTotal = (prodTotal || grandTotal) ? ((grandTotal/1000)/(prodTotal + grandTotal/1000)*100).toFixed(2)+'%' : '—';
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
