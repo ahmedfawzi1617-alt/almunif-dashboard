@@ -246,7 +246,7 @@
   <div id="loginGate">
     <div class="login-box">
       <h2>تسجيل الدخول</h2>
-      <p>لوحات المنيف للأنابيب — للمصرح لهم فقط</p>
+      <p> المنيف للأنابيب — للمصرح لهم فقط</p>
       <input type="text" id="loginUser" placeholder="اسم المستخدم" autocomplete="username">
       <input type="password" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <button onclick="tryLogin()">دخول</button>
@@ -285,6 +285,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/></svg>
       تحليل المواد الخام
     </a>
+    <a href="PRODUCTION.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="7" width="15" height="13" rx="2"/><path d="M16 11l5-3v10l-5-3"/></svg>
+      تحليل الإنتاج
+    </a>
   </nav>
 
   <button id="navFab" onclick="document.getElementById('navSidebar').classList.toggle('open'); document.getElementById('navOverlay').classList.toggle('open');" title="التنقل بين اللوحات">
@@ -310,13 +314,13 @@
   </div>
 
   <div class="filters">
-    <select id="fMonth"><option value="all">كل الشهور</option></select>
-    <select id="fProduct"><option value="all">كل الأنواع</option></select>
-    <select id="fMachine"><option value="all">كل الماكينات</option></select>
-    <select id="fShift"><option value="all">كل الشيفتات</option></select>
-    <select id="fSize"><option value="all">كل المقاسات</option></select>
-    <select id="fColor"><option value="all">كل الألوان</option></select>
-    <button class="refresh-btn" id="clearFiltersBtn" onclick="clearFilters()" style="display:none;">✕ مسح الفلاتر</button>
+    <select id="fMonth"><option value="all">Month </option></select>
+    <select id="fProduct"><option value="all">Material </option></select>
+    <select id="fMachine"><option value="all">Machine </option></select>
+    <select id="fShift"><option value="all">Shift </option></select>
+    <select id="fSize"><option value="all">Size </option></select>
+    <select id="fColor"><option value="all">Color </option></select>
+    <button class="refresh-btn" id="clearFiltersBtn" onclick="clearFilters()" style="display:none;">✕ Reset Filter </button>
   </div>
 
   <div class="kpis">
@@ -398,10 +402,10 @@
     <table>
       <thead>
         <tr>
-          <th>السبب</th>
-          <th>النوع</th>
-          <th>عدد الحالات</th>
-          <th>الوزن (كجم)</th>
+          <th>Reason</th>
+          <th>Type</th>
+          <th>Number of cases </th>
+          <th>Weight (KG)</th>
         </tr>
       </thead>
       <tbody id="defectTableBody"></tbody>
@@ -427,19 +431,18 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=1615042796&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
-const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
+const MONTHS_AR = {1:'JAN',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
 const MONTHLY_TARGET_KG = 6000; // عدّل الهدف الشهري المتفق عليه للهالك
 
 let RAW = [];      // كل الصفوف بعد التطبيع
 let charts = {};   // مراجع الرسومات عشان نعملها destroy/update
 
-// Data Labels اتشالت من كل الشارتس بناءً على طلب العميل (اعتمادًا على الـ Tooltip بدالها)
-// if(window.ChartDataLabels){ Chart.register(ChartDataLabels); }
+if(window.ChartDataLabels){ Chart.register(ChartDataLabels); }
 
 /* ---------- تحميل البيانات ---------- */
 async function loadData(manual){
   const statusEl = document.getElementById('statusText');
-  if(manual) statusEl.textContent = 'بيتحدّث دلوقتي...';
+  if(manual) statusEl.textContent = 'يتحدّث الآن...';
 
   if(SHEET_CSV_URL){
     try{
@@ -472,7 +475,7 @@ function normalizeRows(rows, fromSheet){
         machine: r['machine'] || '',
         product: r['product'] || '',
         length: r['Length'] || r['length'] || '',
-        color: r['color'] || r['Color'] || r['اللون'] || '',
+        color: r['color'] || r['Color'] || r['Color'] || '',
         source: r['source of defect'] || r['source'] || '',
         defect_ar: r['defect arabic'] || r['defect_ar'] || '',
         shift: r['shift'] || '',
@@ -513,13 +516,13 @@ function pad2(n){ return String(n).padStart(2,'0'); }
    كل فلتر بيعرض بس القيم اللي فعلاً موجودة بناءً على باقي الفلاتر
    المفعّلة حاليًا، وبيوريك عدد الاختبارات جنب كل قيمة */
 const FILTER_DEFS = [
-  { id:'fMonth', field:r=>r.date.slice(0,7), allLabel:'كل الشهور',
+  { id:'fMonth', field:r=>r.date.slice(0,7), allLabel:'Month ',
     labelFn:m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; } },
-  { id:'fProduct', field:r=>r.product_type, allLabel:'كل الأنواع', labelFn:v=>v },
-  { id:'fMachine', field:r=>r.machine, allLabel:'كل الماكينات', labelFn:v=>v },
-  { id:'fShift', field:r=>r.shift, allLabel:'كل الشيفتات', labelFn:v=>'شيفت '+v },
-  { id:'fSize', field:r=>r.product, allLabel:'كل المقاسات', labelFn:v=>v },
-  { id:'fColor', field:r=>r.color, allLabel:'كل الألوان', labelFn:v=>v },
+  { id:'fProduct', field:r=>r.product_type, allLabel:'Type ', labelFn:v=>v },
+  { id:'fMachine', field:r=>r.machine, allLabel:'Machine ', labelFn:v=>v },
+  { id:'fShift', field:r=>r.shift, allLabel:'Shift ', labelFn:v=>'شيفت '+v },
+  { id:'fSize', field:r=>r.product, allLabel:'Size ', labelFn:v=>v },
+  { id:'fColor', field:r=>r.color, allLabel:'Color ', labelFn:v=>v },
 ];
 
 function activeFilters(excludeId){
@@ -916,12 +919,12 @@ function generateScrapReport(){
         <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
         <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
       </tr>
-      <tr><th class="defect-cell" style="background:#f7f7f7;">Defect</th><th colspan="9"></th></tr>
+      <tr><th class="defect-cell" style="background:#f7f7f7;">العيب</th><th colspan="9"></th></tr>
     </thead>
     <tbody>${bodyRows}</tbody>
     <tfoot>
       <tr class="total-row">
-        <td>Total</td>
+        <td>الإجمالي</td>
         <td colspan="2">${fmtNum(totalPE)} kg</td><td></td>
         <td colspan="2">${fmtNum(totalPVC)} kg</td><td></td>
         <td colspan="2">${fmtNum(grandTotal)} kg</td><td></td>
@@ -980,8 +983,7 @@ const DEMO_DATA = [{"date": "2026-01-01", "product_type": "PE-100", "machine": "
 const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
-    '26': '26',
-
+   '26': '26',
 };
 
 function checkLogin(){
