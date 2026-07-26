@@ -621,7 +621,7 @@ function renderKPIs(data){
 
   const scrapData = getFilteredScrap();
   const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
-  const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
+  const scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
   document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك (من لوحة الهالك)';
 
@@ -752,8 +752,7 @@ function renderTable(data){
       <td>${nz(d.color)}</td>
       <td>${nz(d.customer)}</td>
       <td>${nz(d.scrap_kg)}</td>
-      <td>${d.scrap_pct!=null ? d.scrap_pct.toFixed(2)+'%' : '—'}</td>
-    </tr>
+      <td>${d.scrap_kg!=null && (d.qty_kg||d.scrap_kg) ? ((d.scrap_kg/(d.qty_kg+d.scrap_kg))*100).toFixed(2)+'%' : '—'}</td>    </tr>
   `).join('');
 }
 
