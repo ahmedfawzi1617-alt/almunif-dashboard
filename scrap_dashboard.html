@@ -471,7 +471,7 @@ function normalizeRows(rows, fromSheet){
     if(fromSheet){
       return {
         date: parseDate(r['date'] || r['Date'] || ''),
-        product_type: r['product type'] || r['product_type'] || '',
+        product_type: r['product type3'] || r['product_type3'] || '',
         machine: r['machine'] || '',
         product: r['product'] || '',
         length: r['Length'] || r['length'] || '',
@@ -484,7 +484,7 @@ function normalizeRows(rows, fromSheet){
       };
     }
     return {
-      date: parseDate(r.date), product_type:r.product_type, machine:r.machine, source:r.source,
+      date: parseDate(r.date), product_type3:r.product_type3, machine:r.machine, source:r.source,
       product:r.product||'', length:r.length||'', color:r.color||'',
       defect_ar:r.defect_ar, shift:r.shift, defect_en:r.defect_en, weight:r.weight||0
     };
@@ -518,7 +518,7 @@ function pad2(n){ return String(n).padStart(2,'0'); }
 const FILTER_DEFS = [
   { id:'fMonth', field:r=>r.date.slice(0,7), allLabel:'Month ',
     labelFn:m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; } },
-  { id:'fProduct', field:r=>r.product_type, allLabel:'Type ', labelFn:v=>v },
+  { id:'fProduct', field:r=>r.product_type3, allLabel:'Type ', labelFn:v=>v },
   { id:'fMachine', field:r=>r.machine, allLabel:'Machine ', labelFn:v=>v },
   { id:'fShift', field:r=>r.shift, allLabel:'Shift ', labelFn:v=>'شيفت '+v },
   { id:'fSize', field:r=>r.product, allLabel:'Size ', labelFn:v=>v },
@@ -658,7 +658,7 @@ function renderGauge(data){
 }
 
 function renderProduct(data){
-  const grouped = groupSum(data, r=>r.product_type, r=>r.weight);
+  const grouped = groupSum(data, r=>r.product_type3, r=>r.weight);
   const entries = Object.entries(grouped).sort((a,b)=>b[1]-a[1]);
   const palette = ['#2dd4bf','#9b8cf2','#f2a93b','#f2678b','#5b8def'];
   destroyChart('product');
@@ -747,8 +747,8 @@ function renderMachine(data){
 function renderTable(data){
   const grouped = {};
   data.forEach(r=>{
-    const key = (r.defect_ar||r.defect_en) + '||' + r.product_type + '||' + r.source;
-    if(!grouped[key]) grouped[key] = {name:r.defect_ar||r.defect_en, product:r.product_type, source:r.source, count:0, weight:0};
+    const key = (r.defect_ar||r.defect_en) + '||' + r.product_type3 + '||' + r.source;
+    if(!grouped[key]) grouped[key] = {name:r.defect_ar||r.defect_en, product:r.product_type3, source:r.source, count:0, weight:0};
     grouped[key].count++; grouped[key].weight += r.weight;
   });
   const sorted = Object.values(grouped).sort((a,b)=>b.weight-a.weight).slice(0,12);
@@ -832,9 +832,9 @@ function generateScrapReport(){
   data.forEach(r=>{
     const defect = r.defect_ar || r.defect_en || 'غير محدد';
     if(!groups[defect]) groups[defect] = { pe:{count:0,weight:0}, pvc:{count:0,weight:0} };
-    if(isPE(r.product_type) && !isPVC(r.product_type)){
+    if(isPE(r.product_type3) && !isPVC(r.product_type3)){
       groups[defect].pe.count++; groups[defect].pe.weight += r.weight;
-    }else if(isPVC(r.product_type)){
+    }else if(isPVC(r.product_type3)){
       groups[defect].pvc.count++; groups[defect].pvc.weight += r.weight;
     }
   });
