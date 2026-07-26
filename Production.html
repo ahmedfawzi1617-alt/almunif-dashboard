@@ -387,7 +387,7 @@
    ============================================================ */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=390647355&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 // رابط شيت الهالك الحقيقي (نفس الشيت المستخدم في لوحة "تحليل الهالك") — عشان نسبة الهالك هنا تتحسب من نفس المصدر الدقيق
-const SCRAP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTgRwS-i_oZivz0AkhEsq-y2RByhqOcZLeMU9mR21aKp4L8N7T9491e33r4iiDnHQ/pub?gid=476195760&single=true&output=csv";
+const SCRAP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=1615042796&single=true&output=csv";
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
 const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
@@ -449,12 +449,29 @@ function normalizeScrapRows(rows){
       return '';
     };
     return {
-      date: parseDate(pick('date','Date')),
+      date: parseScrapDate(pick('date','Date')),
       product_type: pick('product type','Product Type') || '',
       machine: pick('machine','Machine') || '',
       weight: parseFloat(pick('defect weight (Kg)','scrap','weight')) || 0,
     };
   }).filter(r=>r.date);
+}
+// نفس منطق التاريخ المستخدم بالظبط في لوحة "تحليل الهالك" (شهر/يوم كافتراضي)
+// عشان بيانات الهالك تتفسّر بنفس الطريقة في اللوحتين
+function parseScrapDate(str){
+  if(!str) return '';
+  str = String(str).trim();
+  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(m){
+    let [, a, b, yr] = m;
+    let mo = parseInt(a), da = parseInt(b);
+    if(mo > 12 && da <= 12){ const t=mo; mo=da; da=t; }
+    if(yr.length===2) yr = (parseInt(yr)>50 ? '19' : '20') + yr;
+    return `${yr}-${pad2(mo)}-${pad2(da)}`;
+  }
+  return str;
 }
 
 function normalizeRows(rows, fromSheet){
