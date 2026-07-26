@@ -236,7 +236,7 @@
   <div id="loginGate">
     <div class="login-box">
       <h2>تسجيل الدخول</h2>
-      <p>لوحات المنيف للأنابيب — للمصرح لهم فقط</p>
+      <p> المنيف للأنابيب — للمصرح لهم فقط</p>
       <input type="text" id="loginUser" placeholder="اسم المستخدم" autocomplete="username">
       <input type="password" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <button onclick="tryLogin()">دخول</button>
@@ -247,7 +247,7 @@
   <div id="navOverlay" onclick="document.getElementById('navSidebar').classList.remove('open'); this.classList.remove('open');"></div>
   <nav id="navSidebar">
     <button class="navClose" onclick="document.getElementById('navSidebar').classList.remove('open'); document.getElementById('navOverlay').classList.remove('open');">×</button>
-    <h4>لوحات المصنع</h4>
+    <h4>MMP EGYPT </h4>
     <a href="LAB.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
       تحليل الاختبارات المعملية
@@ -260,13 +260,13 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/></svg>
       تحليل المواد الخام
     </a>
-    <a href="PRODUCTION.html" class="active">
+    <a href="Production.html" class="active">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="7" width="15" height="13" rx="2"/><path d="M16 11l5-3v10l-5-3"/></svg>
       تحليل الإنتاج
     </a>
   </nav>
 
-  <button id="navFab" onclick="document.getElementById('navSidebar').classList.toggle('open'); document.getElementById('navOverlay').classList.toggle('open');" title="التنقل بين اللوحات">
+  <button id="navFab" onclick="document.getElementById('navSidebar').classList.toggle('open'); document.getElementById('navOverlay').classList.toggle('open');" title="MMP EGYPT  ">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
   </button>
 
@@ -290,11 +290,11 @@
 
   <div class="filters">
     <input type="text" id="fGradeSearch" placeholder="🔍 بحث برقم طلبية أو عميل أو منتج..." class="search-box">
-    <select id="fYear"><option value="all">كل السنين</option></select>
-    <select id="fMonth"><option value="all">كل الشهور</option></select>
-    <select id="fDay"><option value="all">كل الأيام</option></select>
-    <select id="fGrade"><option value="all">كل الأنواع</option></select>
-    <select id="fMachine"><option value="all">كل الماكينات</option></select>
+    <select id="fYear"><option value="all">Year </option></select>
+    <select id="fMonth"><option value="all">Month </option></select>
+    <select id="fDay"><option value="all">Day </option></select>
+    <select id="fGrade"><option value="all">Type </option></select>
+    <select id="fMachine"><option value="all">Machine </option></select>
   </div>
 
   <div class="kpis">
@@ -355,18 +355,18 @@
     <table>
       <thead>
         <tr>
-          <th class="col-date">التاريخ</th>
-          <th>النوع</th>
-          <th>الماكينة</th>
-          <th class="col-size">المنتج</th>
-          <th>الطول</th>
-          <th>رقم الطلبية</th>
-          <th>الكمية (قطعة)</th>
-          <th>الكمية (كجم)</th>
-          <th>اللون</th>
-          <th>العميل</th>
-          <th>هالك (كجم)</th>
-          <th>هالك %</th>
+          <th class="col-date">Date</th>
+          <th>Type</th>
+          <th>Machine</th>
+          <th class="col-size">Size</th>
+          <th>Length</th>
+          <th> Order NO</th>
+          <th>Quantity (pcs)</th>
+          <th>quantity (kg)</th>
+          <th>Color</th>
+          <th>Customer</th>
+          <th>Scrap (Kg)</th>
+          <th>Scrap %</th>
         </tr>
       </thead>
       <tbody id="testTableBody"></tbody>
@@ -386,18 +386,21 @@
    (نفس الرابط اللي عندك من Publish to web)
    ============================================================ */
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=390647355&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
+// رابط شيت الهالك الحقيقي (نفس الشيت المستخدم في لوحة "تحليل الهالك") — عشان نسبة الهالك هنا تتحسب من نفس المصدر الدقيق
+const SCRAP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTgRwS-i_oZivz0AkhEsq-y2RByhqOcZLeMU9mR21aKp4L8N7T9491e33r4iiDnHQ/pub?gid=476195760&single=true&output=csv";
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
 const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
 
 let RAW = [];
+let SCRAP_RAW = [];
 let charts = {};
 
 if(window.ChartDataLabels){ Chart.register(ChartDataLabels); }
 
 async function loadData(manual){
   const statusEl = document.getElementById('statusText');
-  if(manual) statusEl.textContent = 'بيتحدّث دلوقتي...';
+  if(manual) statusEl.textContent = 'يتحدّث الآن...';
 
   if(SHEET_CSV_URL){
     try{
@@ -417,8 +420,41 @@ async function loadData(manual){
     statusEl.textContent = 'بيانات تجريبية — لسه مش متصل بالشيت';
   }
 
+  if(SCRAP_CSV_URL){
+    try{
+      const res2 = await fetch(SCRAP_CSV_URL + (SCRAP_CSV_URL.includes('?') ? '&' : '?') + 'ts=' + Date.now());
+      const csvText2 = await res2.text();
+      const parsed2 = Papa.parse(csvText2, {header:true, skipEmptyLines:true});
+      SCRAP_RAW = normalizeScrapRows(parsed2.data);
+    }catch(err){
+      console.error('فشل تحميل شيت الهالك:', err);
+      SCRAP_RAW = [];
+    }
+  }
+
   populateFilters();
   renderAll();
+}
+
+function normalizeScrapRows(rows){
+  return rows.map(r=>{
+    const pick = (...names) => {
+      for(const n of names){ if(r[n]!==undefined && r[n]!=='') return r[n]; }
+      const norm = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
+      for(const n of names){
+        const t = norm(n);
+        const k = Object.keys(r).find(k=>norm(k)===t);
+        if(k && r[k]!=='') return r[k];
+      }
+      return '';
+    };
+    return {
+      date: parseDate(pick('date','Date')),
+      product_type: pick('product type','Product Type') || '',
+      machine: pick('machine','Machine') || '',
+      weight: parseFloat(pick('defect weight (Kg)','scrap','weight')) || 0,
+    };
+  }).filter(r=>r.date);
 }
 
 function normalizeRows(rows, fromSheet){
@@ -497,19 +533,19 @@ function populateFilters(){
   const scopedFor = (excludeKey) => RAW.filter(r=>matchesFilters(r, f, excludeKey));
 
   const yearScope = scopedFor('yr');
-  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'كل السنين');
+  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Year ');
 
   const monthScope = scopedFor('m');
-  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'كل الشهور');
+  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month ');
 
   const dayScope = scopedFor('dy');
-  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'كل الأيام');
+  fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Day ');
 
   const gradeScope = scopedFor('gr');
-  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type))].filter(Boolean).sort(), v=>v, 'كل الأنواع');
+  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type))].filter(Boolean).sort(), v=>v, 'Type ');
 
   const machineScope = scopedFor('mc');
-  fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'كل الماكينات');
+  fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'Machine ');
 }
 function fillSelect(id, values, labelFn, allLabel){
   const sel = document.getElementById(id);
@@ -566,10 +602,11 @@ function renderKPIs(data){
   document.getElementById('kpiTotal').textContent = fmtKg(totalKg);
   document.getElementById('kpiTotalSub').textContent = 'كجم في الفترة المحددة';
 
-  const totalScrap = data.reduce((s,r)=>s+(r.scrap_kg||0),0);
+  const scrapData = getFilteredScrap();
+  const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
   const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
-  document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك';
+  document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك (من لوحة الهالك)';
 
   const orders = new Set(data.map(r=>r.order_no).filter(Boolean));
   document.getElementById('kpiOrders').textContent = orders.size;
@@ -581,6 +618,18 @@ function renderKPIs(data){
   document.getElementById('kpiTopCustomerSub').textContent = top ? fmtKg(top[1]) + ' كجم' : '—';
 }
 function fmtKg(n){ return Math.round(n).toLocaleString('en-US'); }
+
+// بيفلتر بيانات الهالك (من شيت لوحة الهالك) بنفس فلاتر التاريخ/النوع/الماكينة المستخدمة هنا
+function getFilteredScrap(){
+  const f = readFilterValues();
+  return SCRAP_RAW.filter(r=>
+    (f.yr==='all' || r.date.slice(0,4)===f.yr) &&
+    (f.m==='all' || r.date.slice(0,7)===f.m) &&
+    (f.dy==='all' || String(parseInt(r.date.slice(8,10)))===f.dy) &&
+    (f.gr==='all' || r.product_type===f.gr) &&
+    (f.mc==='all' || r.machine===f.mc)
+  );
+}
 
 function renderGrade(data){
   const grouped = {};
@@ -795,7 +844,7 @@ function exportReport(){
 
   <h3 class="section-title">ملخص أوامر الإنتاج</h3>
   <table class="summary-table">
-    <thead><tr><th>#</th><th>التاريخ</th><th>النوع</th><th>الماكينة</th><th>رقم الطلبية</th><th>العميل</th><th>الكمية (كجم)</th></tr></thead>
+    <thead><tr><th>NO</th><th>التاريخ</th><th>النوع</th><th>الماكينة</th><th>رقم الطلبية</th><th>العميل</th><th>الكمية (كجم)</th></tr></thead>
     <tbody>${summaryRows}</tbody>
   </table>
 
@@ -832,6 +881,8 @@ const DEMO_DATA = [{"date": "2026-01-01", "product_type": "PE-100", "machine": "
 const MMP_USERS = {
   'admin': 'almunif2026',
   'qc': 'qc2026',
+    '26': '26',
+
 };
 
 function checkLogin(){
