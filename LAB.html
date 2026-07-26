@@ -512,22 +512,22 @@ function populateFilters(){
   const scopedFor = (excludeKey) => RAW.filter(r=>matchesFilters(r, f, excludeKey));
 
   const yearScope = scopedFor('yr');
-  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Years');
+  fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, 'Year');
 
   const monthScope = scopedFor('m');
-  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Months');
+  fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month');
 
   const dayScope = scopedFor('dy');
   fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Days');
 
   const matScope = scopedFor('mat');
-  fillSelect('fMaterial', [...new Set(matScope.map(r=>r.material))].filter(Boolean).sort(), v=>v, 'Materials');
+  fillSelect('fMaterial', [...new Set(matScope.map(r=>r.material))].filter(Boolean).sort(), v=>v, 'Material');
 
   const lineScope = scopedFor('ln');
   fillSelect('fLine', [...new Set(lineScope.map(r=>r.line))].filter(Boolean).sort(), v=>v, 'Lines');
 
   const resultScope = scopedFor('rs');
-  fillSelect('fResult', [...new Set(resultScope.map(r=>r.overall_result))].filter(Boolean).sort(), v=>v==='pass'?'PASS':v==='fail'?'FAIL':v, 'Results');
+  fillSelect('fResult', [...new Set(resultScope.map(r=>r.overall_result))].filter(Boolean).sort(), v=>v==='pass'?'PASS':v==='fail'?'FAIL':v, 'Result');
 }
 function fillSelect(id, values, labelFn, allLabel){
   const sel = document.getElementById(id);
