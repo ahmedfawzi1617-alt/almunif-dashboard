@@ -471,7 +471,7 @@ function normalizeRows(rows, fromSheet){
     if(fromSheet){
       return {
         date: parseDate(r['date'] || r['Date'] || ''),
-        product_type: r['product type3'] || r['product_type3'] || '',
+        product_type3: r['product type3'] || r['product_type3'] || '',
         machine: r['machine'] || '',
         product: r['product'] || '',
         length: r['Length'] || r['length'] || '',
@@ -484,7 +484,7 @@ function normalizeRows(rows, fromSheet){
       };
     }
     return {
-      date: parseDate(r.date), product_type3:r.product_type3, machine:r.machine, source:r.source,
+      date: parseDate(r.date), product_type3:r.product_type33||r.product_type3||'', machine:r.machine, source:r.source,
       product:r.product||'', length:r.length||'', color:r.color||'',
       defect_ar:r.defect_ar, shift:r.shift, defect_en:r.defect_en, weight:r.weight||0
     };
@@ -864,9 +864,9 @@ function generateScrapReport(){
       <td>${nzc(r.totalCount)}</td><td>${nz(r.totalWeight)}</td><td>${pct(r.totalWeight,grandTotal)}</td>
     </tr>`).join('');
 
-  const scrapPctPE = (prodPE || totalPE) ? ((totalPE/1000)/(prodPE + totalPE/1000)*100).toFixed(2)+'%' : '—';
-  const scrapPctPVC = (prodPVC || totalPVC) ? ((totalPVC/1000)/(prodPVC + totalPVC/1000)*100).toFixed(2)+'%' : '—';
-  const scrapPctTotal = (prodTotal || grandTotal) ? ((grandTotal/1000)/(prodTotal + grandTotal/1000)*100).toFixed(2)+'%' : '—';
+  const scrapPctPE = prodPE ? ((totalPE/1000)/prodPE*100).toFixed(2)+'%' : '—';
+  const scrapPctPVC = prodPVC ? ((totalPVC/1000)/prodPVC*100).toFixed(2)+'%' : '—';
+  const scrapPctTotal = prodTotal ? ((grandTotal/1000)/prodTotal*100).toFixed(2)+'%' : '—';
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
