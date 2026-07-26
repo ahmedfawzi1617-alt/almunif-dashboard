@@ -902,7 +902,7 @@ function generateScrapReport(){
 </head>
 <body>
   <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
-  <header>
+ <header>
     <div class="period">${periodLabel}</div>
     <div class="title">Scrap And Defect details (PE- PVC)</div>
   </header>
@@ -946,7 +946,6 @@ function generateScrapReport(){
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة تحليل الهالك — المنيف للأنابيب</footer>
 </body>
 </html>`;
-
   const win = window.open('', '_blank');
   if(!win){ alert('المتصفح منع فتح نافذة جديدة. اسمح بالنوافذ المنبثقة (Pop-ups) لهذا الموقع وجرب تاني.'); return; }
   win.document.open();
