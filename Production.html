@@ -365,7 +365,7 @@
     </div>
     <div style="max-height:360px; overflow-y:auto;">
     <table>
-      <thead><tr><th>رقم الطلبية</th><th>العميل</th><th>المقاس</th><th>الكمية (كجم)</th></tr></thead>
+      <thead><tr><th>العميل</th><th>المقاس</th><th>رقم الطلبية</th><th>الكمية (كجم)</th></tr></thead>
       <tbody id="summaryTableBody"></tbody>
     </table>
     </div>
@@ -804,7 +804,7 @@ function renderSummary(data){
   const sorted = Object.values(groups).sort((a,b)=>b.kg - a.kg);
   document.getElementById('summaryCount').textContent = sorted.length;
   document.getElementById('summaryTableBody').innerHTML = sorted.map(g=>
-    `<tr><td>${g.order}</td><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${fmtKg(g.kg)}</td></tr>`
+    `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${g.order}</td><td>${fmtKg(g.kg)}</td></tr>`
   ).join('');
 }
 
