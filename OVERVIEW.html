@@ -311,7 +311,7 @@
     <div class="status">
       <span class="dot"></span>
       <span id="statusText">بيانات تجريبية — لسه مش متصل بالشيت</span>
-      <button class="refresh-btn" onclick="loadData(true)">تحديث الآن</button>
+      <button class="refresh-btn" onclick="loadOverview()">تحديث الآن</button>
     </div>
   </header>
 
@@ -320,6 +320,11 @@
   </div>
 
   <div class="hint" style="text-align:center; margin-bottom:18px; font-size:13px;">آخر تحديث: <span id="lastUpdate">—</span></div>
+
+  <div class="filters">
+    <select id="fYear"><option value="all">Year </option></select>
+    <select id="fMonth"><option value="all">Month </option></select>
+  </div>
 
   <div class="overview-grid">
 
@@ -370,6 +375,16 @@ const LAB_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQiYC7XUuYzsqO
 const RAW_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQiYC7XUuYzsqOQkKtxFH667BvpK0sroldpVvGwJ-V4r0bfbA2-ar-ZlsBPyBLcMBDsi5EKFwWTmxC/pub?gid=845489182&single=true&output=csv";
 const REFRESH_MS = 90000;
 
+const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
+
+function populateSelect(id, values, labelFn, allLabel){
+  const sel = document.getElementById(id);
+  sel.innerHTML = `<option value="all">${allLabel}</option>` + values.map(v=>`<option value="${v}">${labelFn(v)}</option>`).join('');
+}
+['fYear','fMonth'].forEach(id=>{
+  document.addEventListener('change', e=>{ if(e.target.id===id) loadOverview(); });
+});
+
 function pick(row, ...names){
   for(const n of names){ if(row[n]!==undefined && row[n]!=='') return row[n]; }
   const norm = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
@@ -397,6 +412,40 @@ async function loadOverview(){
   const [prodRows, scrapRows, labRows, rawRows] = await Promise.all([
     fetchCsv(PRODUCTION_CSV), fetchCsv(SCRAP_CSV), fetchCsv(LAB_CSV), fetchCsv(RAW_CSV)
   ]);
+
+  let allProdRows = prodRows || [];
+  let allScrapRows = scrapRows || [];
+
+  // populate year/month filters
+  if(prodRows){
+    const years = [...new Set(prodRows.map(r=>{ const d=pick(r,'date','Date'); return d ? d.slice(0,4) : ''; }).filter(Boolean))].sort();
+    populateSelect('fYear', years, v=>v, 'Year ');
+    const months = [...new Set(prodRows.map(r=>{ const d=pick(r,'date','Date'); return d ? d.slice(0,7) : ''; }).filter(Boolean))].sort();
+    populateSelect('fMonth', months, m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo)+' '+y; }, 'Month ');
+  }
+
+  const fYear = document.getElementById('fYear').value;
+  const fMonth = document.getElementById('fMonth').value;
+
+  if(prodRows && (fYear!=='all' || fMonth!=='all')){
+    prodRows = prodRows.filter(r=>{
+      const d = pick(r,'date','Date');
+      if(!d) return false;
+      if(fYear!=='all' && d.slice(0,4)!==fYear) return false;
+      if(fMonth!=='all' && d.slice(0,7)!==fMonth) return false;
+      return true;
+    });
+  }
+
+  if(scrapRows && (fYear!=='all' || fMonth!=='all')){
+    scrapRows = scrapRows.filter(r=>{
+      const d = pick(r,'date','Date');
+      if(!d) return false;
+      if(fYear!=='all' && d.slice(0,4)!==fYear) return false;
+      if(fMonth!=='all' && d.slice(0,7)!==fMonth) return false;
+      return true;
+    });
+  }
 
   // ===== الإنتاج =====
   if(prodRows){
