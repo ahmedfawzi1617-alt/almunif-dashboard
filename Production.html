@@ -503,6 +503,7 @@ function normalizeRows(rows, fromSheet){
       return {
         date: parseDate(pick('date','Date')),
         product_type: pick('product type','Product Type') || '',
+        product_type3: pick('product type3','product type 3','Product Type3','Product Type 3','Product type3','product Type3') || '',
         machine: pick('machine','Machine') || '',
         product: pick('Product','product') || '',
         length: toNum(pick('length','Length')),
@@ -519,7 +520,7 @@ function normalizeRows(rows, fromSheet){
       };
     }
     return {
-      date: parseDate(r.date), product_type:r.product_type||'', machine:r.machine||'', product:r.product||'',
+      date: parseDate(r.date), product_type:r.product_type||'', product_type3:r.product_type3||'', machine:r.machine||'', product:r.product||'',
       length:r.length, order_no:r.order_no||'', qty_pc:r.qty_pc, qty_kg:r.qty_kg, color:r.color||'',
       scrap_kg:r.scrap_kg, category:r.category||'', rework:r.rework, customer:r.customer||'', scrap_pct:r.scrap_pct, std_kg:r.std_kg
     };
@@ -573,7 +574,7 @@ function populateFilters(){
   fillSelect('fDay', [...new Set(dayScope.map(r=>parseInt(r.date.slice(8,10))))].filter(d=>!isNaN(d)).sort((a,b)=>a-b), v=>'يوم '+v, 'Day ');
 
   const gradeScope = scopedFor('gr');
-  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type))].filter(Boolean).sort(), v=>v, 'Type ');
+  fillSelect('fGrade', [...new Set(gradeScope.map(r=>r.product_type3))].filter(Boolean).sort(), v=>v, 'Type ');
 
   const machineScope = scopedFor('mc');
   fillSelect('fMachine', [...new Set(machineScope.map(r=>r.machine))].filter(Boolean).sort(), v=>v, 'Machine ');
