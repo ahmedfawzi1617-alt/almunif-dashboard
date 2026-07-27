@@ -648,13 +648,14 @@ function renderKPIs(data){
   document.getElementById('kpiTopCustomerSub').textContent = top ? fmtKg(top[1]) + ' كجم' : '—';
 
   // Over Weight — الوزن الزايد (الفعلي - النظري)
-  let pctSum = 0, count = 0;
+  let theoTotal = 0, actualTotal = 0;
   data.forEach(r=>{
     let theo = r.std_kg;
     if(theo == null) theo = calcTheoreticalWeight(r.product, r.length, r.qty_pc, r.product_type);
-    if(theo && r.qty_kg){ pctSum += (r.qty_kg - theo) / theo * 100; count++; }
+    if(theo == null && r.scrap_pct != null && r.qty_kg) theo = r.qty_kg / (1 + r.scrap_pct/100);
+    if(theo && r.qty_kg){ theoTotal += theo; actualTotal += r.qty_kg; }
   });
-  const overPct = count ? pctSum / count : 0;
+  const overPct = theoTotal ? ((actualTotal - theoTotal)/theoTotal*100) : 0;
   document.getElementById('kpiOverWeight').textContent = (overPct >= 0 ? '+' : '') + overPct.toFixed(2) + '%';
 }
 function calcTheoreticalWeight(product, length, qtyPc, productType){
