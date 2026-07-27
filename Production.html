@@ -624,7 +624,8 @@ function renderKPIs(data){
   document.getElementById('kpiTotal').textContent = fmtKg(totalKg);
   document.getElementById('kpiTotalSub').textContent = 'كجم في الفترة المحددة';
 
-  const totalScrap = data.reduce((s,r)=>s+(r.scrap_kg||0),0);
+  const scrapData = getFilteredScrap(data);
+  const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
   const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
   document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك';
@@ -645,11 +646,13 @@ function fmtKg(n){ return Math.round(n).toLocaleString('en-US'); }
 // (مش بس على فلتر الواجهة) عشان نضمن إن المقارنة بتبقى على نفس الفترة بالظبط في الشيتين
 function getFilteredScrap(prodData){
   const months = new Set(prodData.map(r=>r.date.slice(0,7)));
+  const machines = new Set(prodData.map(r=>r.machine).filter(Boolean));
+  const productTypes = new Set(prodData.map(r=>r.product_type).filter(Boolean));
   const f = readFilterValues();
   return SCRAP_RAW.filter(r=>
     months.has(r.date.slice(0,7)) &&
-    (f.gr==='all' || r.product_type===f.gr) &&
-    (f.mc==='all' || r.machine===f.mc)
+    (f.gr==='all' ? productTypes.has(r.product_type) : r.product_type===f.gr) &&
+    (f.mc==='all' ? machines.has(r.machine) : r.machine===f.mc)
   );
 }
 
