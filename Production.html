@@ -311,8 +311,8 @@
     </div>
     <div class="kpi k2">
       <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Over Weight</div>
-      <div class="value" id="kpiOverWeight" style="font-size:22px;">—</div>
-      <div class="sub" id="kpiOverWeightPct">—</div>
+      <div class="value" id="kpiOverWeight" style="font-size:26px;">—</div>
+      <div class="sub">نسبة الزيادة عن الوزن النظري</div>
     </div>
     <div class="kpi k3">
       <div class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>نسبة الهالك</div>
@@ -652,10 +652,8 @@ function renderKPIs(data){
     const theo = calcTheoreticalWeight(r.product, r.length, r.qty_pc, r.product_type);
     if(theo !== null && r.qty_kg){ theoTotal += theo; actualTotal += r.qty_kg; }
   });
-  const overKg = actualTotal - theoTotal;
-  const overPct = actualTotal ? (overKg/actualTotal*100) : 0;
-  document.getElementById('kpiOverWeight').textContent = (overKg >= 0 ? '+' : '') + fmtKg(overKg) + ' كجم';
-  document.getElementById('kpiOverWeightPct').textContent = (overPct >= 0 ? '+' : '') + overPct.toFixed(2) + '%';
+  const overPct = theoTotal ? ((actualTotal - theoTotal)/theoTotal*100) : 0;
+  document.getElementById('kpiOverWeight').textContent = (overPct >= 0 ? '+' : '') + overPct.toFixed(2) + '%';
 }
 function calcTheoreticalWeight(product, length, qtyPc, productType){
   if(!product || !length || !qtyPc) return null;
