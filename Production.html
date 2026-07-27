@@ -627,7 +627,7 @@ function renderKPIs(data){
 
   const scrapData = getFilteredScrap(data);
   const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
-  const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
+  const scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
   document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك';
 
