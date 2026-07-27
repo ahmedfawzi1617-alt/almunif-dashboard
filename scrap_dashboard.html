@@ -319,7 +319,9 @@
   </div>
 
   <div class="filters">
+    <select id="fYear"><option value="all">Year </option></select>
     <select id="fMonth"><option value="all">Month </option></select>
+    <select id="fDay"><option value="all">Day </option></select>
     <select id="fProduct"><option value="all">Material </option></select>
     <select id="fMachine"><option value="all">Machine </option></select>
     <select id="fShift"><option value="all">Shift </option></select>
@@ -414,6 +416,24 @@
         </tr>
       </thead>
       <tbody id="defectTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <h3>التلخيص اليومي للهالك حسب المقاس</h3>
+    <div class="hint">إجمالي الهالك لكل يوم — مصنّف حسب المقاس والنوع والماكينة والسبب</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Size</th>
+          <th>Type</th>
+          <th>Machine</th>
+          <th>Reason</th>
+          <th>Scrap (Kg)</th>
+        </tr>
+      </thead>
+      <tbody id="dailyScrapTableBody"></tbody>
     </table>
   </div>
 
@@ -521,8 +541,10 @@ function pad2(n){ return String(n).padStart(2,'0'); }
    كل فلتر بيعرض بس القيم اللي فعلاً موجودة بناءً على باقي الفلاتر
    المفعّلة حاليًا، وبيوريك عدد الاختبارات جنب كل قيمة */
 const FILTER_DEFS = [
+  { id:'fYear', field:r=>r.date.slice(0,4), allLabel:'Year ', labelFn:v=>v },
   { id:'fMonth', field:r=>r.date.slice(0,7), allLabel:'Month ',
     labelFn:m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; } },
+  { id:'fDay', field:r=>r.date.slice(8,10), allLabel:'Day ', labelFn:v=>'يوم '+v },
   { id:'fProduct', field:r=>r.product_type, allLabel:'Type ', labelFn:v=>v },
   { id:'fMachine', field:r=>r.machine, allLabel:'Machine ', labelFn:v=>v },
   { id:'fShift', field:r=>r.shift, allLabel:'Shift ', labelFn:v=>'شيفت '+v },
@@ -586,6 +608,7 @@ function renderAll(){
   renderShift(data);
   renderMachine(data);
   renderTable(data);
+  renderDailyScrap(data);
 }
 
 function renderKPIs(data){
@@ -771,6 +794,26 @@ function renderTable(data){
           <div class="bar-track"><div class="bar-fill" style="width:${(d.weight/maxW*100).toFixed(0)}%"></div></div>
         </div>
       </td>
+    </tr>
+  `).join('');
+}
+
+function renderDailyScrap(data){
+  const grouped = {};
+  data.forEach(r=>{
+    const key = r.date + '||' + (r.product||'') + '||' + r.product_type + '||' + r.machine + '||' + (r.defect_ar||r.defect_en);
+    if(!grouped[key]) grouped[key] = {date:r.date, size:r.product, product:r.product_type, machine:r.machine, reason:r.defect_ar||r.defect_en, weight:0};
+    grouped[key].weight += r.weight;
+  });
+  const sorted = Object.values(grouped).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('dailyScrapTableBody').innerHTML = sorted.map(d=>`
+    <tr>
+      <td>${d.date}</td>
+      <td>${d.size||'—'}</td>
+      <td><span class="badge ${d.product.toUpperCase().includes('PE')?'pe':'pvc'}">${d.product||'—'}</span></td>
+      <td>${d.machine}</td>
+      <td>${d.reason}</td>
+      <td>${fmt(d.weight)}</td>
     </tr>
   `).join('');
 }
