@@ -660,8 +660,7 @@ function renderKPIs(data){
   document.getElementById('kpiTotal').textContent = fmtKg(totalKg);
   document.getElementById('kpiTotalSub').textContent = 'كجم في الفترة المحددة';
 
-  const scrapData = getFilteredScrap(data);
-  const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
+  const totalScrap = data.reduce((s,r)=>s+(r.scrap_kg||0),0);
   const scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
   document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك';
@@ -877,8 +876,7 @@ function exportReport(){
   })();
 
   const totalKg = data.reduce((s,d)=>s+(d.qty_kg||0),0);
-  const scrapData2 = getFilteredScrap(data);
-  const totalScrap = scrapData2.reduce((s,r)=>s+(r.weight||0),0);
+  const totalScrap = data.reduce((s,r)=>s+(r.scrap_kg||0),0);
   const scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100).toFixed(2)+'%' : '—';
   const esc = s => (s==null || s==='') ? '—' : String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
