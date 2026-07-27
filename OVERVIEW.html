@@ -400,25 +400,33 @@ async function loadOverview(){
 
   // ===== الإنتاج =====
   if(prodRows){
-    const totalKg = prodRows.reduce((s,r)=>s+(parseFloat(pick(r,'Pro. Quantity Kg'))||0), 0);
+    const totalKg = prodRows.reduce((s,r)=>s+(parseFloat(pick(r,'Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','quantity (kg)','Qty Kg','qty kg','qty_kg'))||0), 0);
     document.getElementById('ovProdTotal').textContent = fmtKg(totalKg);
 
     if(scrapRows){
-      const totalScrap = scrapRows.reduce((s,r)=>s+(parseFloat(pick(r,'defect weight (Kg)','scrap'))||0), 0);
-      const pct = totalKg ? (totalScrap/totalKg*100) : 0;
+      const prodMonths = new Set(prodRows.map(r=>{
+        const d = pick(r,'date','Date');
+        return d ? d.slice(0,7) : '';
+      }).filter(Boolean));
+      const totalScrap = scrapRows.reduce((s,r)=>{
+        const d = pick(r,'date','Date');
+        if(!d || !prodMonths.has(d.slice(0,7))) return s;
+        return s + (parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0);
+      }, 0);
+      const pct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
       document.getElementById('ovProdScrap').textContent = pct.toFixed(2)+'%';
     }
   }
 
   // ===== الهالك =====
   if(scrapRows){
-    const totalScrap = scrapRows.reduce((s,r)=>s+(parseFloat(pick(r,'defect weight (Kg)','scrap'))||0), 0);
+    const totalScrap = scrapRows.reduce((s,r)=>s+(parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0), 0);
     document.getElementById('ovScrapTotal').textContent = fmtKg(totalScrap);
 
     const byDefect = {};
     scrapRows.forEach(r=>{
       const d = pick(r,'defect arabic','defect english') || '';
-      const w = parseFloat(pick(r,'defect weight (Kg)','scrap'))||0;
+      const w = parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0;
       if(d) byDefect[d] = (byDefect[d]||0) + w;
     });
     const top = Object.entries(byDefect).sort((a,b)=>b[1]-a[1])[0];
