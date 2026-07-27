@@ -613,7 +613,7 @@ function matchesFilters(r, f, exclude){
   if(exclude!=='yr' && f.yr!=='all' && r.date.slice(0,4)!==f.yr) return false;
   if(exclude!=='m' && f.m!=='all' && r.date.slice(0,7)!==f.m) return false;
   if(exclude!=='dy' && f.dy!=='all' && String(parseInt(r.date.slice(8,10)))!==f.dy) return false;
-  if(exclude!=='gr' && f.gr!=='all' && r.product_type!==f.gr) return false;
+  if(exclude!=='gr' && f.gr!=='all' && r.product_type3!==f.gr) return false;
   if(exclude!=='mc' && f.mc!=='all' && r.machine!==f.mc) return false;
   if(exclude!=='cl' && f.cl!=='all' && r.color!==f.cl) return false;
   if(exclude!=='sq' && f.sq!=='' && !((r.order_no||'')+' '+(r.customer||'')+' '+(r.product||'')).toLowerCase().includes(f.sq)) return false;
