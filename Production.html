@@ -500,9 +500,9 @@ function normalizeRows(rows, fromSheet){
         length: toNum(pick('length','Length')),
         order_no: pick('Order number','order number','Order NO.') || '',
         qty_pc: toNum(pick('Quantity (PC)','quantity (pc)')),
-        qty_kg: toNum(pick('Pro. Quantity Kg','pro. quantity kg','Quantity Kg')),
+        qty_kg: toNum(pick('Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','quantity (kg)','Qty Kg','qty kg','qty_kg')),
         color: pick('color','Color') || '',
-        scrap_kg: toNum(pick('scrap Kg','Scrap Kg')),
+        scrap_kg: toNum(pick('scrap Kg','Scrap Kg','Scrap (Kg)','scrap (kg)','scrap weight','Scrap Weight','weight','Weight','scrap_kg')),
         category: pick('Column1') || '',
         rework: toNum(pick('Rework','rework')),
         customer: pick('customer (vlook)','customer') || '',
@@ -624,11 +624,10 @@ function renderKPIs(data){
   document.getElementById('kpiTotal').textContent = fmtKg(totalKg);
   document.getElementById('kpiTotalSub').textContent = 'كجم في الفترة المحددة';
 
-  const scrapData = getFilteredScrap(data);
-  const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
-  const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
+  const scrapFromProd = data.reduce((s,r)=>s+(r.scrap_kg||0),0);
+  const scrapPct = totalKg ? (scrapFromProd/totalKg*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
-  document.getElementById('kpiScrapPctSub').textContent = fmtKg(totalScrap) + ' كجم هالك';
+  document.getElementById('kpiScrapPctSub').textContent = fmtKg(scrapFromProd) + ' كجم هالك';
 
   const orders = new Set(data.map(r=>r.order_no).filter(Boolean));
   document.getElementById('kpiOrders').textContent = orders.size;
