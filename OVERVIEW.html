@@ -336,7 +336,7 @@
       <div class="oc-icon oc-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-4.3 4.3-2.5-2.5L7 14.7"/></svg></div>
       <h3>تحليل الهالك</h3>
       <div class="oc-stat"><span class="oc-num" id="ovScrapTotal">—</span><span class="oc-lbl">كجم إجمالي الهالك</span></div>
-      <div class="oc-stat"><span class="oc-num" id="ovScrapTop" style="font-size:15px;">—</span><span class="oc-lbl">أكتر سبب هالك</span></div>
+      <div class="oc-stat"><span class="oc-num" id="ovScrapPct" style="font-size:20px;">—</span><span class="oc-lbl">نسبة الهالك</span></div>
       <div class="oc-go">افتح اللوحة ←</div>
     </a>
 
@@ -400,8 +400,10 @@ async function loadOverview(){
   ]);
 
   // ===== الإنتاج =====
+  let totalKg = 0;
+  let scrapPct = null;
   if(prodRows){
-    const totalKg = prodRows.reduce((s,r)=>s+(parseFloat(pick(r,'Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','quantity (kg)','Qty Kg','qty kg','qty_kg'))||0), 0);
+    totalKg = prodRows.reduce((s,r)=>s+(parseFloat(pick(r,'Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','quantity (kg)','Qty Kg','qty kg','qty_kg'))||0), 0);
     document.getElementById('ovProdTotal').textContent = fmtKg(totalKg);
 
     if(scrapRows){
@@ -431,8 +433,8 @@ async function loadOverview(){
         if(m && !prodMachines.has(m)) return s;
         return s + (parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0);
       }, 0);
-      const pct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
-      document.getElementById('ovProdScrap').textContent = pct.toFixed(2)+'%';
+      scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
+      document.getElementById('ovProdScrap').textContent = scrapPct.toFixed(2)+'%';
     }
 
     // Over Weight — (الفعلي - المتوقع) / المتوقع × 100
@@ -451,14 +453,8 @@ async function loadOverview(){
     const totalScrap = scrapRows.reduce((s,r)=>s+(parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0), 0);
     document.getElementById('ovScrapTotal').textContent = fmtKg(totalScrap);
 
-    const byDefect = {};
-    scrapRows.forEach(r=>{
-      const d = pick(r,'defect arabic','defect english') || '';
-      const w = parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0;
-      if(d) byDefect[d] = (byDefect[d]||0) + w;
-    });
-    const top = Object.entries(byDefect).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById('ovScrapTop').textContent = top ? top[0] : '—';
+    const pct = scrapPct !== null ? scrapPct : 0;
+    document.getElementById('ovScrapPct').textContent = pct.toFixed(2)+'%';
   }
 
   // ===== الاختبارات المعملية =====
