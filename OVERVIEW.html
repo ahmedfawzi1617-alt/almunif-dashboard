@@ -328,6 +328,7 @@
       <h3>تحليل الإنتاج</h3>
       <div class="oc-stat"><span class="oc-num" id="ovProdTotal">—</span><span class="oc-lbl">كجم إجمالي الإنتاج</span></div>
       <div class="oc-stat"><span class="oc-num" id="ovProdScrap">—</span><span class="oc-lbl">نسبة الهالك</span></div>
+      <div class="oc-stat"><span class="oc-num" id="ovProdOverWt" style="font-size:15px;">—</span><span class="oc-lbl">Over Weight</span></div>
       <div class="oc-go">افتح اللوحة ←</div>
     </a>
 
@@ -433,6 +434,16 @@ async function loadOverview(){
       const pct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
       document.getElementById('ovProdScrap').textContent = pct.toFixed(2)+'%';
     }
+
+    // Over Weight — (الفعلي - المتوقع) / المتوقع × 100
+    let theoTotal = 0, actualTotal = 0;
+    prodRows.forEach(r=>{
+      const s = parseFloat(pick(r,'st.weight','st. weight','St. Weight','st weight','St Weight','ST Weight','Standard Weight','Std Kg','Std Wt','std_kg'));
+      const a = parseFloat(pick(r,'Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','qty kg','qty_kg'));
+      if(s && a){ theoTotal += s; actualTotal += a; }
+    });
+    const overPct = theoTotal ? ((actualTotal - theoTotal) / theoTotal * 100) : 0;
+    document.getElementById('ovProdOverWt').textContent = (overPct > 0 ? '+' : '') + overPct.toFixed(2) + '%';
   }
 
   // ===== الهالك =====
