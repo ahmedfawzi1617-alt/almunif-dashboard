@@ -881,10 +881,19 @@ function exportReport(){
   const scrapPct = totalKg ? (totalScrap/totalKg*100).toFixed(2)+'%' : '—';
   const esc = s => (s==null || s==='') ? '—' : String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  const summaryRows = data.map((d,i)=>`
+  const orderGroups = {};
+  data.forEach(d=>{
+    if(!d.order_no) return;
+    if(!orderGroups[d.order_no]) orderGroups[d.order_no] = { order:d.order_no, customer:d.customer||'—', size:d.product||'—', length:d.length||'—', pcs:0, kg:0 };
+    orderGroups[d.order_no].pcs += d.qty_pc||0;
+    orderGroups[d.order_no].kg += d.qty_kg||0;
+    if(d.length && orderGroups[d.order_no].length === '—') orderGroups[d.order_no].length = d.length;
+  });
+  const orderList = Object.values(orderGroups).sort((a,b)=>b.kg - a.kg);
+  const summaryRows = orderList.map((g,i)=>`
     <tr>
-      <td>${i+1}</td><td>${esc(d.date)}</td><td>${esc(d.product_type)}</td><td>${esc(d.machine)}</td>
-      <td>${esc(d.order_no)}</td><td>${esc(d.customer)}</td><td>${esc(d.qty_kg)}</td>
+      <td>${i+1}</td><td>${esc(g.customer)}</td><td>${esc(g.size)}</td>
+      <td>${esc(g.order)}</td><td>${g.pcs}</td><td>${esc(g.length)}</td><td>${Math.round(g.kg).toLocaleString('en-US')}</td>
     </tr>`).join('');
 
   const html = `<!DOCTYPE html>
@@ -939,13 +948,13 @@ function exportReport(){
 
   <table class="info-header-table">
     <tr><th>رقم التقرير</th><td>${reportNo}</td><th>تاريخ الإصدار</th><td>${genDate}</td></tr>
-    <tr><th>الفترة المحددة</th><td>${periodLabel}</td><th>عدد أوامر التشغيل</th><td>${data.length}</td></tr>
+    <tr><th>الفترة المحددة</th><td>${periodLabel}</td><th>عدد أوامر التشغيل</th><td>${orderList.length}</td></tr>
     <tr><th>إجمالي الإنتاج (كجم)</th><td>${Math.round(totalKg).toLocaleString('en-US')}</td><th>نسبة الهالك</th><td>${scrapPct}</td></tr>
   </table>
 
   <h3 class="section-title">ملخص أوامر الإنتاج</h3>
   <table class="summary-table">
-    <thead><tr><th>NO</th><th>التاريخ</th><th>النوع</th><th>الماكينة</th><th>رقم الطلبية</th><th>العميل</th><th>الكمية (كجم)</th></tr></thead>
+    <thead><tr><th>NO</th><th>العميل</th><th>المقاس</th><th>رقم الطلبية</th><th>عدد المواسير</th><th>الطول</th><th>الكمية (كجم)</th></tr></thead>
     <tbody>${summaryRows}</tbody>
   </table>
 
