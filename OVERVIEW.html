@@ -405,12 +405,17 @@ async function loadOverview(){
 
     if(scrapRows){
       const prodMonths = new Set(prodRows.map(r=>{
-        const d = pick(r,'date','Date');
-        return d ? d.slice(0,7) : '';
+        const d = pick(r,'date','Date'); return d ? d.slice(0,7) : '';
       }).filter(Boolean));
+      const prodTypes = new Set(prodRows.map(r=>pick(r,'product type','Product Type')).filter(Boolean));
+      const prodMachines = new Set(prodRows.map(r=>pick(r,'machine','Machine')).filter(Boolean));
       const totalScrap = scrapRows.reduce((s,r)=>{
         const d = pick(r,'date','Date');
         if(!d || !prodMonths.has(d.slice(0,7))) return s;
+        const t = pick(r,'product type','Product Type');
+        if(t && !prodTypes.has(t)) return s;
+        const m = pick(r,'machine','Machine');
+        if(m && !prodMachines.has(m)) return s;
         return s + (parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0);
       }, 0);
       const pct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
