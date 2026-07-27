@@ -321,11 +321,6 @@
 
   <div class="hint" style="text-align:center; margin-bottom:18px; font-size:13px;">آخر تحديث: <span id="lastUpdate">—</span></div>
 
-  <div class="filters">
-    <select id="fYear"><option value="all">Year </option></select>
-    <select id="fMonth"><option value="all">Month </option></select>
-  </div>
-
   <div class="overview-grid">
 
     <a href="Production.html" class="overview-card">
@@ -375,16 +370,6 @@ const LAB_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQiYC7XUuYzsqO
 const RAW_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQiYC7XUuYzsqOQkKtxFH667BvpK0sroldpVvGwJ-V4r0bfbA2-ar-ZlsBPyBLcMBDsi5EKFwWTmxC/pub?gid=845489182&single=true&output=csv";
 const REFRESH_MS = 90000;
 
-const MONTHS_AR = {1:'يناير',2:'فبراير',3:'مارس',4:'أبريل',5:'مايو',6:'يونيو',7:'يوليو',8:'أغسطس',9:'سبتمبر',10:'أكتوبر',11:'نوفمبر',12:'ديسمبر'};
-
-function populateSelect(id, values, labelFn, allLabel){
-  const sel = document.getElementById(id);
-  sel.innerHTML = `<option value="all">${allLabel}</option>` + values.map(v=>`<option value="${v}">${labelFn(v)}</option>`).join('');
-}
-['fYear','fMonth'].forEach(id=>{
-  document.addEventListener('change', e=>{ if(e.target.id===id) loadOverview(); });
-});
-
 function pick(row, ...names){
   for(const n of names){ if(row[n]!==undefined && row[n]!=='') return row[n]; }
   const norm = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
@@ -413,53 +398,31 @@ async function loadOverview(){
     fetchCsv(PRODUCTION_CSV), fetchCsv(SCRAP_CSV), fetchCsv(LAB_CSV), fetchCsv(RAW_CSV)
   ]);
 
-  let allProdRows = prodRows || [];
-  let allScrapRows = scrapRows || [];
-
-  // populate year/month filters
-  if(prodRows){
-    const years = [...new Set(prodRows.map(r=>{ const d=pick(r,'date','Date'); return d ? d.slice(0,4) : ''; }).filter(Boolean))].sort();
-    populateSelect('fYear', years, v=>v, 'Year ');
-    const months = [...new Set(prodRows.map(r=>{ const d=pick(r,'date','Date'); return d ? d.slice(0,7) : ''; }).filter(Boolean))].sort();
-    populateSelect('fMonth', months, m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo)+' '+y; }, 'Month ');
-  }
-
-  const fYear = document.getElementById('fYear').value;
-  const fMonth = document.getElementById('fMonth').value;
-
-  if(prodRows && (fYear!=='all' || fMonth!=='all')){
-    prodRows = prodRows.filter(r=>{
-      const d = pick(r,'date','Date');
-      if(!d) return false;
-      if(fYear!=='all' && d.slice(0,4)!==fYear) return false;
-      if(fMonth!=='all' && d.slice(0,7)!==fMonth) return false;
-      return true;
-    });
-  }
-
-  if(scrapRows && (fYear!=='all' || fMonth!=='all')){
-    scrapRows = scrapRows.filter(r=>{
-      const d = pick(r,'date','Date');
-      if(!d) return false;
-      if(fYear!=='all' && d.slice(0,4)!==fYear) return false;
-      if(fMonth!=='all' && d.slice(0,7)!==fMonth) return false;
-      return true;
-    });
-  }
-
   // ===== الإنتاج =====
   if(prodRows){
     const totalKg = prodRows.reduce((s,r)=>s+(parseFloat(pick(r,'Pro. Quantity Kg','pro. quantity kg','Quantity Kg','Quantity (Kg)','quantity (kg)','Qty Kg','qty kg','qty_kg'))||0), 0);
     document.getElementById('ovProdTotal').textContent = fmtKg(totalKg);
 
     if(scrapRows){
-      const prodMonths = new Set(prodRows.map(r=>{
-        const d = pick(r,'date','Date'); return d ? d.slice(0,7) : '';
-      }).filter(Boolean));
+      const normDate = str=>{
+        if(!str) return '';
+        str = String(str).trim();
+        let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(m) return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+        m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+        if(m){
+          let [,a,b,yr]=m; let mo=parseInt(a), da=parseInt(b);
+          if(mo>12&&da<=12){let t=mo;mo=da;da=t;}
+          if(yr.length===2) yr=(parseInt(yr)>50?'19':'20')+yr;
+          return yr+'-'+mo.toString().padStart(2,'0')+'-'+da.toString().padStart(2,'0');
+        }
+        return '';
+      };
+      const prodMonths = new Set(prodRows.map(r=>{ const d=normDate(pick(r,'date','Date')); return d ? d.slice(0,7) : ''; }).filter(Boolean));
       const prodTypes = new Set(prodRows.map(r=>pick(r,'product type','Product Type')).filter(Boolean));
       const prodMachines = new Set(prodRows.map(r=>pick(r,'machine','Machine')).filter(Boolean));
       const totalScrap = scrapRows.reduce((s,r)=>{
-        const d = pick(r,'date','Date');
+        const d = normDate(pick(r,'date','Date'));
         if(!d || !prodMonths.has(d.slice(0,7))) return s;
         const t = pick(r,'product type','Product Type');
         if(t && !prodTypes.has(t)) return s;
