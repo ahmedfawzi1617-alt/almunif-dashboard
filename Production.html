@@ -365,7 +365,7 @@
     </div>
     <div style="max-height:360px; overflow-y:auto;">
     <table>
-      <thead><tr><th>العميل</th><th>المقاس</th><th>رقم الطلبية</th><th>الكمية (كجم)</th></tr></thead>
+      <thead><tr><th>العميل</th><th>المقاس</th><th>رقم الطلبية</th><th>عدد المواسير</th><th>الطول</th><th>الكمية (كجم)</th></tr></thead>
       <tbody id="summaryTableBody"></tbody>
     </table>
     </div>
@@ -798,13 +798,17 @@ function renderSummary(data){
   const groups = {};
   data.forEach(r=>{
     if(!r.order_no) return;
-    if(!groups[r.order_no]) groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', size: r.product||'—', kg: 0 };
+    if(!groups[r.order_no]){
+      groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', size: r.product||'—', length: r.length||'—', pcs: 0, kg: 0 };
+    }
+    groups[r.order_no].pcs += r.qty_pc||0;
     groups[r.order_no].kg += r.qty_kg||0;
+    if(r.length && groups[r.order_no].length === '—') groups[r.order_no].length = r.length;
   });
   const sorted = Object.values(groups).sort((a,b)=>b.kg - a.kg);
   document.getElementById('summaryCount').textContent = sorted.length;
   document.getElementById('summaryTableBody').innerHTML = sorted.map(g=>
-    `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${g.order}</td><td>${fmtKg(g.kg)}</td></tr>`
+    `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${fmtKg(g.kg)}</td></tr>`
   ).join('');
 }
 
