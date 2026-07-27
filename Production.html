@@ -511,7 +511,7 @@ function normalizeRows(rows, fromSheet){
         color: pick('color','Color') || '',
         scrap_kg: toNum(pick('scrap Kg','Scrap Kg','Scrap (Kg)','scrap (kg)','scrap weight','Scrap Weight','weight','Weight','scrap_kg')),
         category: pick('Column1') || '',
-        std_kg: toNum(pick('Standard Weight','Standard Kg','Std Kg','Theoretical Weight','Theo Weight','Theo Kg','standard weight','standard kg','theoretical weight','theo weight','theo kg','std_kg','over weight','Over Weight','Overweight','overweight','Std Wt','std wt')),
+        std_kg: toNum(pick('Standard Weight','Standard Kg','Std Kg','Theoretical Weight','Theo Weight','Theo Kg','theoretical weight','theo weight','theo kg','std_kg','over weight','Over Weight','Overweight','overweight','Std Wt','std wt','Expected Production Weight','Expected Weight','Expected Kg','expected weight','expected kg','Target Weight','target weight','target kg','Planned Weight','planned weight','planned kg','الوزن المتوقع','Expected','expected','Budget','budget','Std','std')),
         rework: toNum(pick('Rework','rework')),
         customer: pick('customer (vlook)','customer') || '',
         scrap_pct: toNum(pick('scrap %','Scrap %')),
@@ -647,16 +647,13 @@ function renderKPIs(data){
   document.getElementById('kpiTopCustomer').textContent = top ? top[0] : '—';
   document.getElementById('kpiTopCustomerSub').textContent = top ? fmtKg(top[1]) + ' كجم' : '—';
 
-  // Over Weight — الوزن الزايد (الفعلي - النظري)
+  // Over Weight — (الفعلي - المتوقع) / المتوقع × 100
   let theoTotal = 0, actualTotal = 0;
   data.forEach(r=>{
-    let theo = r.std_kg;
-    if(theo == null) theo = calcTheoreticalWeight(r.product, r.length, r.qty_pc, r.product_type);
-    if(theo == null && r.scrap_pct != null && r.qty_kg) theo = r.qty_kg / (1 + r.scrap_pct/100);
-    if(theo && r.qty_kg){ theoTotal += theo; actualTotal += r.qty_kg; }
+    if(r.std_kg != null && r.qty_kg){ theoTotal += r.std_kg; actualTotal += r.qty_kg; }
   });
-  const overPct = theoTotal ? ((actualTotal - theoTotal)/theoTotal*100) : 0;
-  document.getElementById('kpiOverWeight').textContent = (overPct >= 0 ? '+' : '') + overPct.toFixed(2) + '%';
+  const overPct = theoTotal ? ((actualTotal - theoTotal) / theoTotal * 100) : 0;
+  document.getElementById('kpiOverWeight').textContent = (overPct > 0 ? '+' : '') + overPct.toFixed(2) + '%';
 }
 function calcTheoreticalWeight(product, length, qtyPc, productType){
   if(!product || !length || !qtyPc) return null;
