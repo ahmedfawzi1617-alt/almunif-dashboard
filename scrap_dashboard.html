@@ -805,7 +805,7 @@ function renderDailyScrap(data){
     if(!grouped[key]) grouped[key] = {date:r.date, size:r.product, product:r.product_type, machine:r.machine, reason:r.defect_ar||r.defect_en, weight:0};
     grouped[key].weight += r.weight;
   });
-  const sorted = Object.values(grouped).sort((a,b)=>a.date.localeCompare(b.date));
+  const sorted = Object.values(grouped).sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('dailyScrapTableBody').innerHTML = sorted.map(d=>`
     <tr>
       <td>${d.date}</td>
