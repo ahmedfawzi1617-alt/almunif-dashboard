@@ -511,6 +511,7 @@ function normalizeRows(rows, fromSheet){
         color: pick('color','Color') || '',
         scrap_kg: toNum(pick('scrap Kg','Scrap Kg','Scrap (Kg)','scrap (kg)','scrap weight','Scrap Weight','weight','Weight','scrap_kg')),
         category: pick('Column1') || '',
+        std_kg: toNum(pick('Standard Weight','Standard Kg','Std Kg','Theoretical Weight','Theo Weight','Theo Kg','standard weight','standard kg','theoretical weight','theo weight','theo kg','std_kg')),
         rework: toNum(pick('Rework','rework')),
         customer: pick('customer (vlook)','customer') || '',
         scrap_pct: toNum(pick('scrap %','Scrap %')),
@@ -519,7 +520,7 @@ function normalizeRows(rows, fromSheet){
     return {
       date: parseDate(r.date), product_type:r.product_type||'', machine:r.machine||'', product:r.product||'',
       length:r.length, order_no:r.order_no||'', qty_pc:r.qty_pc, qty_kg:r.qty_kg, color:r.color||'',
-      scrap_kg:r.scrap_kg, category:r.category||'', rework:r.rework, customer:r.customer||'', scrap_pct:r.scrap_pct
+      scrap_kg:r.scrap_kg, category:r.category||'', rework:r.rework, customer:r.customer||'', scrap_pct:r.scrap_pct, std_kg:r.std_kg
     };
   }).filter(r=>r.date);
 }
@@ -649,8 +650,9 @@ function renderKPIs(data){
   // Over Weight — الوزن الزايد (الفعلي - النظري)
   let theoTotal = 0, actualTotal = 0;
   data.forEach(r=>{
-    const theo = calcTheoreticalWeight(r.product, r.length, r.qty_pc, r.product_type);
-    if(theo !== null && r.qty_kg){ theoTotal += theo; actualTotal += r.qty_kg; }
+    let theo = r.std_kg;
+    if(theo == null) theo = calcTheoreticalWeight(r.product, r.length, r.qty_pc, r.product_type);
+    if(theo && r.qty_kg){ theoTotal += theo; actualTotal += r.qty_kg; }
   });
   const overPct = theoTotal ? ((actualTotal - theoTotal)/theoTotal*100) : 0;
   document.getElementById('kpiOverWeight').textContent = (overPct >= 0 ? '+' : '') + overPct.toFixed(2) + '%';
