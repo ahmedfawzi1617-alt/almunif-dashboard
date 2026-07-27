@@ -353,11 +353,19 @@
   </div>
 
   <div class="card" style="margin-bottom:14px;">
-    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ملخص أوامر الإنتاج</h3>
-    <div class="hint">كل أمر تشغيل مجمع — الكمية الإجمالية لكل أمر (<span id="summaryCount">0</span> أمر)</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <div>
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>ملخص أوامر الإنتاج</h3>
+        <div class="hint">كل أمر تشغيل مجمع — الكمية الإجمالية لكل أمر (<span id="summaryCount">0</span> أمر)</div>
+      </div>
+      <button class="refresh-btn" onclick="exportReport()" style="display:flex; align-items:center; gap:7px; white-space:nowrap;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/><path d="M18 14v5"/><path d="M6 14v5"/></svg>
+        طباعة
+      </button>
+    </div>
     <div style="max-height:360px; overflow-y:auto;">
     <table>
-      <thead><tr><th>رقم الطلبية</th><th>العميل</th><th>الكمية (كجم)</th></tr></thead>
+      <thead><tr><th>رقم الطلبية</th><th>العميل</th><th>المقاس</th><th>الكمية (كجم)</th></tr></thead>
       <tbody id="summaryTableBody"></tbody>
     </table>
     </div>
@@ -790,13 +798,13 @@ function renderSummary(data){
   const groups = {};
   data.forEach(r=>{
     if(!r.order_no) return;
-    if(!groups[r.order_no]) groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', kg: 0 };
+    if(!groups[r.order_no]) groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', size: r.product||'—', kg: 0 };
     groups[r.order_no].kg += r.qty_kg||0;
   });
   const sorted = Object.values(groups).sort((a,b)=>b.kg - a.kg);
   document.getElementById('summaryCount').textContent = sorted.length;
   document.getElementById('summaryTableBody').innerHTML = sorted.map(g=>
-    `<tr><td>${g.order}</td><td>${g.customer}</td><td>${fmtKg(g.kg)}</td></tr>`
+    `<tr><td>${g.order}</td><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${fmtKg(g.kg)}</td></tr>`
   ).join('');
 }
 
