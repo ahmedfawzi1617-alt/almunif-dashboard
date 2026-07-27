@@ -497,6 +497,7 @@ function normalizeRows(rows, fromSheet){
       return {
         date: parseDate(r['date'] || r['Date'] || ''),
         product_type: r['product type'] || r['product_type'] || '',
+        product_type3: r['product type3'] || r['product_type3'] || r['product type 3'] || '',
         machine: r['machine'] || '',
         product: r['product'] || '',
         length: r['Length'] || r['length'] || '',
@@ -509,7 +510,7 @@ function normalizeRows(rows, fromSheet){
       };
     }
     return {
-      date: parseDate(r.date), product_type:r.product_type, machine:r.machine, source:r.source,
+      date: parseDate(r.date), product_type:r.product_type, product_type3:r.product_type3||'', machine:r.machine, source:r.source,
       product:r.product||'', length:r.length||'', color:r.color||'',
       defect_ar:r.defect_ar, shift:r.shift, defect_en:r.defect_en, weight:r.weight||0
     };
@@ -545,7 +546,7 @@ const FILTER_DEFS = [
   { id:'fMonth', field:r=>r.date.slice(0,7), allLabel:'Month ',
     labelFn:m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; } },
   { id:'fDay', field:r=>r.date.slice(8,10), allLabel:'Day ', labelFn:v=>'يوم '+v },
-  { id:'fProduct', field:r=>r.product_type, allLabel:'Type ', labelFn:v=>v },
+  { id:'fProduct', field:r=>r.product_type3, allLabel:'Type ', labelFn:v=>v },
   { id:'fMachine', field:r=>r.machine, allLabel:'Machine ', labelFn:v=>v },
   { id:'fShift', field:r=>r.shift, allLabel:'Shift ', labelFn:v=>'شيفت '+v },
   { id:'fSize', field:r=>r.product, allLabel:'Size ', labelFn:v=>v },
