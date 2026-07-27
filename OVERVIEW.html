@@ -327,7 +327,6 @@
       <div class="oc-icon oc-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="7" width="15" height="13" rx="2"/><path d="M16 11l5-3v10l-5-3"/></svg></div>
       <h3>تحليل الإنتاج</h3>
       <div class="oc-stat"><span class="oc-num" id="ovProdTotal">—</span><span class="oc-lbl">كجم إجمالي الإنتاج</span></div>
-      <div class="oc-stat"><span class="oc-num" id="ovProdScrap">—</span><span class="oc-lbl">نسبة الهالك</span></div>
       <div class="oc-stat"><span class="oc-num" id="ovProdOverWt" style="font-size:15px;">—</span><span class="oc-lbl">Over Weight</span></div>
       <div class="oc-go">افتح اللوحة ←</div>
     </a>
@@ -434,7 +433,6 @@ async function loadOverview(){
         return s + (parseFloat(pick(r,'defect weight (Kg)','defect weight','weight','Weight','scrap','Scrap','Scrap (Kg)','scrap_kg'))||0);
       }, 0);
       scrapPct = totalKg ? (totalScrap/(totalKg+totalScrap)*100) : 0;
-      document.getElementById('ovProdScrap').textContent = scrapPct.toFixed(2)+'%';
     }
 
     // Over Weight — (الفعلي - المتوقع) / المتوقع × 100
