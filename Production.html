@@ -624,7 +624,7 @@ function renderKPIs(data){
   document.getElementById('kpiTotal').textContent = fmtKg(totalKg);
   document.getElementById('kpiTotalSub').textContent = 'كجم في الفترة المحددة';
 
-  const scrapData = getFilteredScrap();
+  const scrapData = getFilteredScrap(data);
   const totalScrap = scrapData.reduce((s,r)=>s+(r.weight||0),0);
   const scrapPct = totalKg ? (totalScrap/totalKg*100) : 0;
   document.getElementById('kpiScrapPct').textContent = scrapPct.toFixed(2)+'%';
