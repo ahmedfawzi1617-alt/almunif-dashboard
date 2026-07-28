@@ -265,6 +265,7 @@
       <input type="text" id="reportProdPE" readonly style="background:#1a2a3e; color:var(--teal); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
       <label class="modal-label">إجمالي إنتاج PVC للفترة (طن) — تحسب تلقائي</label>
       <input type="text" id="reportProdPVC" readonly style="background:#1a2a3e; color:var(--amber); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
+      <div id="prodDiagnostic" style="font-size:11px; color:var(--text-2); text-align:center; margin:6px 0;"></div>
       <button onclick="generateScrapReport()">توليد التقرير</button>
       <button onclick="closeScrapReportModal()" style="background:var(--surface-hi); color:var(--text-0); margin-top:8px;">إلغاء</button>
     </div>
@@ -511,7 +512,6 @@ async function loadData(manual){
 
 function normalizeProdRows(rows, fromSheet){
   if(!fromSheet || !rows.length) return [];
-  // اكتشاف أسماء الأعمدة ديناميكي
   const keys = Object.keys(rows[0]);
   const nk = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
   const findKey = (...patterns) => {
@@ -523,7 +523,7 @@ function normalizeProdRows(rows, fromSheet){
     return null;
   };
   const dateKey = findKey('date','Date') || keys[0];
-  const typeKey = findKey('product type','product_type','النوع','Product type') || keys[1];
+  const typeKey = findKey('product type 2','product type2','product_type2','Product type 2','product type','product_type','النوع','Product type') || keys[1];
   const qtyKey = findKey('Pro. Quantity Kg','quantity kg','qty kg','qty_kg','Quantity Kg','Quantity','الكمية','qty');
 
   return rows.map(r=>{
@@ -907,12 +907,16 @@ function openScrapReportModal(){
   // حساب إنتاج PE و PVC تلقائي من بيانات الإنتاج
   const fMonth = m;
   const prodRows = (fMonth && fMonth!=='all') ? PROD_RAW.filter(r=>r.date.slice(0,7)===fMonth) : PROD_RAW;
+  console.log('PROD_RAW count:', PROD_RAW.length, 'filtered:', prodRows.length, 'fMonth:', fMonth);
   let peKg = 0, pvcKg = 0;
   prodRows.forEach(r=>{
+    if(!r.product_type){ console.log('No product_type for date:', r.date); }
     const t = (r.product_type||'').toUpperCase();
     if(t.includes('PE')) peKg += r.qty_kg;
     else if(t.includes('PVC')) pvcKg += r.qty_kg;
   });
+  console.log('peKg:', peKg, 'pvcKg:', pvcKg);
+  document.getElementById('prodDiagnostic').textContent = PROD_RAW.length + ' سجل إنتاج — ' + prodRows.length + ' سجل للشهر — PE: ' + (peKg/1000).toFixed(1) + ' طن — PVC: ' + (pvcKg/1000).toFixed(1) + ' طن';
   document.getElementById('reportProdPE').value = peKg ? (peKg/1000).toFixed(1) : '—';
   document.getElementById('reportProdPVC').value = pvcKg ? (pvcKg/1000).toFixed(1) : '—';
 
