@@ -510,24 +510,28 @@ async function loadData(manual){
 }
 
 function normalizeProdRows(rows, fromSheet){
-  return rows.map(r=>{
-    if(fromSheet){
-      const pick = (...names) => {
-        for(const n of names){ if(r[n]!==undefined && r[n]!=='') return r[n]; }
-        const norm = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
-        for(const n of names){ const t=norm(n); const k=Object.keys(r).find(k=>norm(k)===t); if(k && r[k]!=='') return r[k]; }
-        return '';
-      };
-      return {
-        date: parseDate(pick('date','Date')),
-        product_type: pick('product type','Product Type','product_type') || '',
-        qty_kg: parseFloat(pick('Pro. Quantity Kg','pro. quantity kg','Quantity Kg','qty kg','qty_kg')) || 0,
-      };
+  if(!fromSheet || !rows.length) return [];
+  // اكتشاف أسماء الأعمدة ديناميكي
+  const keys = Object.keys(rows[0]);
+  const nk = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
+  const findKey = (...patterns) => {
+    for(const p of patterns){
+      const normP = nk(p);
+      const found = keys.find(k => nk(k) === normP || nk(k).includes(normP));
+      if(found) return found;
     }
+    return null;
+  };
+  const dateKey = findKey('date','Date') || keys[0];
+  const typeKey = findKey('product type','product_type','النوع','Product type') || keys[1];
+  const qtyKey = findKey('Pro. Quantity Kg','quantity kg','qty kg','qty_kg','Quantity Kg','Quantity','الكمية','qty');
+
+  return rows.map(r=>{
+    const rawType = r[typeKey] || '';
     return {
-      date: parseDate(r.date),
-      product_type: r.product_type || '',
-      qty_kg: parseFloat(r.qty_kg) || 0,
+      date: parseDate(r[dateKey] || ''),
+      product_type: String(rawType).trim(),
+      qty_kg: parseFloat(r[qtyKey]) || 0,
     };
   }).filter(r=>r.date);
 }
