@@ -398,12 +398,6 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:14px;">
-    <h3>تكرار العيوب — PE vs PVC</h3>
-    <div class="hint">عدد مرات تكرار كل عيب مصنف حسب النوع (مرتب حسب إجمالي الوزن)</div>
-    <div class="chart-box tall"><canvas id="defectComparisonChart"></canvas></div>
-  </div>
-
   <div class="card">
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
       <div>
@@ -661,7 +655,6 @@ function renderAll(){
   renderTrend(data);
   renderMachine(data);
   renderSize(data);
-  renderDefectComparison(data);
   renderTable(data);
   renderDailyScrap(data);
 }
@@ -844,44 +837,6 @@ function renderSize(data){
       scales:{
         x:{ticks:{color:'#aebdd4'}, grid:{color:'rgba(255,255,255,0.05)'}},
         y:{ticks:{color:'#aebdd4', font:{family:'Cairo', size:11.5}}, grid:{display:false}}
-      }
-    })
-  });
-}
-
-function renderDefectComparison(data){
-  const isPE = p => (p||'').toUpperCase().includes('PE');
-  const isPVC = p => (p||'').toUpperCase().includes('PVC');
-  const groups = {};
-  data.forEach(r=>{
-    const defect = r.defect_ar || r.defect_en || 'غير محدد';
-    if(!groups[defect]) groups[defect] = {pe:0, pvc:0};
-    if(isPE(r.product_type) && !isPVC(r.product_type)) groups[defect].pe++;
-    else if(isPVC(r.product_type)) groups[defect].pvc++;
-  });
-  const entries = Object.entries(groups).sort((a,b)=>(b[1].pe+b[1].pvc)-(a[1].pe+a[1].pvc)).slice(0,15);
-  const labels = entries.map(e=>e[0]);
-  const peData = entries.map(e=>e[1].pe);
-  const pvcData = entries.map(e=>e[1].pvc);
-
-  destroyChart('defectComparison');
-  charts.defectComparison = new Chart(byId('defectComparisonChart'), {
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {label:'PE', data:peData, backgroundColor:'#2dd4bf', borderRadius:6, maxBarThickness:28,
-          datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', font:{family:'Cairo', weight:'800', size:10.5}, formatter:v=>v||''}},
-        {label:'PVC', data:pvcData, backgroundColor:'#9b8cf2', borderRadius:6, maxBarThickness:28,
-          datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', font:{family:'Cairo', weight:'800', size:10.5}, formatter:v=>v||''}}
-      ]
-    },
-    options: baseOptions({
-      plugins:{legend:{position:'top', labels:{color:'#aebdd4', font:{family:'Cairo', size:11.5}, padding:14, usePointStyle:true}}},
-      layout:{padding:{top:28}},
-      scales:{
-        x:{ticks:{color:'#aebdd4', font:{family:'Cairo', size:10}}, grid:{display:false}},
-        y:{ticks:{color:'#aebdd4'}, grid:{color:'rgba(255,255,255,0.05)'}}
       }
     })
   });
@@ -1139,15 +1094,15 @@ function generateScrapReport(){
   </table>
 
   <div style="margin-top:20px;">
-    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
+    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
     <div style="max-width:700px; margin:0 auto;"><canvas id="defectCountChart" height="300"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة تحليل الهالك — المنيف للأنابيب</footer>
 <script>
 const labels = ${JSON.stringify(rows.map(r=>r.defect))};
-const peData = ${JSON.stringify(rows.map(r=>r.peCount))};
-const pvcData = ${JSON.stringify(rows.map(r=>r.pvcCount))};
+const peData = ${JSON.stringify(rows.map(r=>r.peWeight))};
+const pvcData = ${JSON.stringify(rows.map(r=>r.pvcWeight))};
 Chart.register(ChartDataLabels);
 new Chart(document.getElementById('defectCountChart'), {
   type:'bar',
@@ -1155,9 +1110,9 @@ new Chart(document.getElementById('defectCountChart'), {
     labels,
     datasets:[
       {label:'PE', data:peData, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}},
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}},
       {label:'PVC', data:pvcData, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}}
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}}
     ]
   },
   options:{
