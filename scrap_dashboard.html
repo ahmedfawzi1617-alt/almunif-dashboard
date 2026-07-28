@@ -261,10 +261,10 @@
       <p style="text-align:center;">هيتحسب من البيانات المفلترة حاليًا في الداشبورد</p>
       <label class="modal-label">عنوان الفترة (يظهر أعلى التقرير)</label>
       <input type="text" id="reportPeriodLabel" placeholder="مثال: Jun-26 أو 1/1/2026-30/6/2026">
-      <label class="modal-label">إجمالي إنتاج PE للفترة (طن) — من شيت الإنتاج تلقائيًا، وتقدر تعدّله</label>
-      <input type="text" id="reportProdPE" placeholder="هيتحسب تلقائيًا">
-      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن) — من شيت الإنتاج تلقائيًا، وتقدر تعدّله</label>
-      <input type="text" id="reportProdPVC" placeholder="هيتحسب تلقائيًا">
+      <label class="modal-label">إجمالي إنتاج PE للفترة (طن)</label>
+      <input type="text" id="reportProdPE" placeholder="ادخل إجمالي الإنتاج PE ...">
+      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن)</label>
+      <input type="text" id="reportProdPVC" placeholder="ادخل إجمالي الإنتاج PVC ...">
       <button onclick="generateScrapReport()">توليد التقرير</button>
       <button onclick="closeScrapReportModal()" style="background:var(--surface-hi); color:var(--text-0); margin-top:8px;">إلغاء</button>
     </div>
@@ -457,10 +457,10 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=1615042796&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
-// رابـط شيت الإنتاج الأساسي — نفس التاب بالظبط اللي بتستخدمه صفحة Production.html
-// (لو حابب تضيف تابات تانية فعلاً بتحتوي بيانات إنتاج صحيحة، ضيف الـ gid بتاعها هنا)
+// رابـط شيت الإنتاج الأساسي
 const PROD_SHEET_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub";
-const PROD_GIDS = ["390647355"];
+// gid tabs — ضيف كل الـ tabs اللي فيها بيانات إنتاج هنا
+const PROD_GIDS = ["390647355","1634384404","1379793103","2127221718","1408590623","1266654711","2012281216","916166140"];
 
 const MONTHS_AR = {1:'JAN',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
 const MONTHLY_TARGET_KG = 6000; // عدّل الهدف الشهري المتفق عليه للهالك
@@ -903,34 +903,7 @@ function openScrapReportModal(){
     periodInput.value = '';
   }
 
-  // تعبئة تلقائية لإجمالي إنتاج PE وPVC من شيت الإنتاج بناءً على نفس فلتر السنة/الشهر/اليوم المفعّل حاليًا
-  const prod = computeProductionTotals();
-  document.getElementById('reportProdPE').value = prod.pe ? prod.pe.toFixed(1) : '';
-  document.getElementById('reportProdPVC').value = prod.pvc ? prod.pvc.toFixed(1) : '';
-
   document.getElementById('scrapReportOverlay').classList.add('open');
-}
-
-// بيجمع إجمالي إنتاج PE وPVC بالطن من شيت الإنتاج، لنفس فترة السنة/الشهر/اليوم المفعّلة حاليًا في فلاتر الداشبورد
-function computeProductionTotals(){
-  const yr = document.getElementById('fYear').value;
-  const m = document.getElementById('fMonth').value;
-  const dy = document.getElementById('fDay').value;
-
-  const matches = PROD_RAW.filter(r=>
-    (yr==='all' || r.date.slice(0,4)===yr) &&
-    (m==='all' || r.date.slice(0,7)===m) &&
-    (dy==='all' || r.date.slice(8,10)===dy)
-  );
-
-  let peKg = 0, pvcKg = 0;
-  matches.forEach(r=>{
-    const t = (r.product_type||'').toUpperCase();
-    if(t.includes('PVC')) pvcKg += r.qty_kg;
-    else if(t.includes('PE')) peKg += r.qty_kg;
-  });
-
-  return { pe: peKg/1000, pvc: pvcKg/1000 };
 }
 function closeScrapReportModal(){
   document.getElementById('scrapReportOverlay').classList.remove('open');
