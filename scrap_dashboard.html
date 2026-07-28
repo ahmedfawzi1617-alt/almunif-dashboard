@@ -390,10 +390,17 @@
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:14px;">
-    <h3>أعلى 8 ماكينات من حيث الهالك</h3>
-    <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
-    <div class="chart-box"><canvas id="machineChart"></canvas></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>أعلى 8 ماكينات من حيث الهالك</h3>
+      <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
+      <div class="chart-box"><canvas id="machineChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>أعلى 8 مقاسات هالك</h3>
+      <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
+      <div class="chart-box"><canvas id="sizeChart"></canvas></div>
+    </div>
   </div>
 
   <div class="card">
@@ -653,6 +660,7 @@ function renderAll(){
   renderTrend(data);
   renderShift(data);
   renderMachine(data);
+  renderSize(data);
   renderTable(data);
   renderDailyScrap(data);
 }
@@ -803,6 +811,28 @@ function renderMachine(data){
   charts.machine = new Chart(byId('machineChart'), {
     type:'bar',
     data:{ labels:sorted.map(s=>s[0]), datasets:[{data:sorted.map(s=>s[1]), backgroundColor:'#2dd4bf', borderRadius:6, maxBarThickness:34,
+      datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'right', offset:4, clamp:true, clip:false, display:'auto',
+        font:{family:'Cairo', weight:'800', size:11}, formatter:v=>fmt(v)}
+    }] },
+    options: baseOptions({
+      indexAxis:'y',
+      plugins:{legend:{display:false}},
+      layout:{padding:{right:36}},
+      scales:{
+        x:{ticks:{color:'#aebdd4'}, grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{color:'#aebdd4', font:{family:'Cairo', size:11.5}}, grid:{display:false}}
+      }
+    })
+  });
+}
+
+function renderSize(data){
+  const grouped = groupSum(data, r=>r.product || r.length, r=>r.weight);
+  const sorted = Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  destroyChart('size');
+  charts.size = new Chart(byId('sizeChart'), {
+    type:'bar',
+    data:{ labels:sorted.map(s=>s[0]), datasets:[{data:sorted.map(s=>s[1]), backgroundColor:'#9b8cf2', borderRadius:6, maxBarThickness:34,
       datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'right', offset:4, clamp:true, clip:false, display:'auto',
         font:{family:'Cairo', weight:'800', size:11}, formatter:v=>fmt(v)}
     }] },
