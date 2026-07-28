@@ -261,13 +261,10 @@
       <p style="text-align:center;">هيتحسب من البيانات المفلترة حاليًا في الداشبورد</p>
       <label class="modal-label">عنوان الفترة (يظهر أعلى التقرير)</label>
       <input type="text" id="reportPeriodLabel" placeholder="مثال: Jun-26 أو 1/1/2026-30/6/2026">
-      <label class="modal-label">إجمالي إنتاج PE للفترة (طن) — تحسب تلقائي</label>
-      <input type="text" id="reportProdPE" readonly style="background:#1a2a3e; color:var(--teal); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
-      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن) — تحسب تلقائي</label>
-      <input type="text" id="reportProdPVC" readonly style="background:#1a2a3e; color:var(--amber); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
-      <label class="modal-label">gids إضافية (افصل بفاصلة)</label>
-      <input type="text" id="extraGids" placeholder="مثال: 123456789,987654321" style="font-size:12px;">
-      <div id="prodDiagnostic" style="font-size:11px; color:var(--text-2); text-align:center; margin:6px 0;"></div>
+      <label class="modal-label">إجمالي إنتاج PE للفترة (طن)</label>
+      <input type="text" id="reportProdPE" placeholder="ادخل إجمالي الإنتاج PE ...">
+      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن)</label>
+      <input type="text" id="reportProdPVC" placeholder="ادخل إجمالي الإنتاج PVC ...">
       <button onclick="generateScrapReport()">توليد التقرير</button>
       <button onclick="closeScrapReportModal()" style="background:var(--surface-hi); color:var(--text-0); margin-top:8px;">إلغاء</button>
     </div>
@@ -905,23 +902,6 @@ function openScrapReportModal(){
   }else{
     periodInput.value = '';
   }
-
-  // حساب إنتاج PE و PVC تلقائي من بيانات الإنتاج
-  const fMonth = m;
-  const prodRows = (fMonth && fMonth!=='all') ? PROD_RAW.filter(r=>r.date.slice(0,7)===fMonth) : PROD_RAW;
-  console.log('PROD_RAW count:', PROD_RAW.length, 'filtered:', prodRows.length, 'fMonth:', fMonth);
-  console.log('First 5 PROD records:', PROD_RAW.slice(0,5).map(r=>({date:r.date, type:r.product_type, kg:r.qty_kg})));
-  let peKg = 0, pvcKg = 0, otherKg = 0;
-  prodRows.forEach(r=>{
-    const t = (r.product_type||'').toUpperCase();
-    if(t.includes('PE')) peKg += r.qty_kg;
-    else if(t.includes('PVC')) pvcKg += r.qty_kg;
-    else otherKg += r.qty_kg;
-  });
-  console.log('peKg:', peKg, 'pvcKg:', pvcKg, 'otherKg:', otherKg);
-  document.getElementById('prodDiagnostic').textContent = PROD_RAW.length + ' سجل — ' + prodRows.length + ' سجل للشهر — PE: ' + (peKg/1000).toFixed(1) + ' طن — PVC: ' + (pvcKg/1000).toFixed(1) + ' طن — أخرى: ' + (otherKg/1000).toFixed(1) + ' طن';
-  document.getElementById('reportProdPE').value = peKg ? (peKg/1000).toFixed(1) : '—';
-  document.getElementById('reportProdPVC').value = pvcKg ? (pvcKg/1000).toFixed(1) : '—';
 
   document.getElementById('scrapReportOverlay').classList.add('open');
 }
