@@ -458,8 +458,10 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=1615042796&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
-// رابط شيت الإنتاج (نفس الرابط اللي في Production.html) — عشان يحسب الإنتاج تلقائي
-const PROD_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=390647355&single=true&output=csv"; // <-- حط رابط شيت الإنتاج هنا
+// رابـط شيت الإنتاج الأساسي
+const PROD_SHEET_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub";
+// gid tabs — ضيف كل الـ tabs اللي فيها بيانات إنتاج هنا
+const PROD_GIDS = ["390647355","1634384404","1379793103","2127221718","1408590623","1266654711","2012281216","916166140"];
 
 const MONTHS_AR = {1:'JAN',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
 const MONTHLY_TARGET_KG = 6000; // عدّل الهدف الشهري المتفق عليه للهالك
@@ -493,17 +495,24 @@ async function loadData(manual){
     statusEl.textContent = 'بيانات تجريبية — لسه مش متصل بالشيت';
   }
 
-  // تحميل بيانات الإنتاج تلقائي
-  if(PROD_CSV_URL){
-    try{
-      const res2 = await fetch(PROD_CSV_URL + (PROD_CSV_URL.includes('?') ? '&' : '?') + 'ts=' + Date.now());
-      const csvText2 = await res2.text();
-      const parsed2 = Papa.parse(csvText2, {header:true, skipEmptyLines:true});
-      PROD_RAW = normalizeProdRows(parsed2.data, true);
-    }catch(err){
-      console.error('فشل تحميل شيت الإنتاج:', err);
-      PROD_RAW = [];
+  // تحميل بيانات الإنتاج من كل الـ tabs
+  PROD_RAW = [];
+  if(PROD_SHEET_BASE){
+    for(const gid of PROD_GIDS){
+      try{
+        const url = PROD_SHEET_BASE + '?gid=' + gid + '&single=true&output=csv&ts=' + Date.now();
+        const res2 = await fetch(url);
+        const csvText2 = await res2.text();
+        const parsed2 = Papa.parse(csvText2, {header:true, skipEmptyLines:true});
+        if(parsed2.data && parsed2.data.length > 1){
+          const normalized = normalizeProdRows(parsed2.data, true);
+          PROD_RAW = PROD_RAW.concat(normalized);
+        }
+      }catch(err){
+        console.warn('فشل تحميل gid=' + gid, err);
+      }
     }
+    console.log('PROD_RAW loaded, total rows:', PROD_RAW.length);
   }
 
   populateFilters();
@@ -512,26 +521,17 @@ async function loadData(manual){
 
 function normalizeProdRows(rows, fromSheet){
   if(!fromSheet || !rows.length) return [];
-  const keys = Object.keys(rows[0]);
-  const nk = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
-  const findKey = (...patterns) => {
-    for(const p of patterns){
-      const normP = nk(p);
-      const found = keys.find(k => nk(k) === normP || nk(k).includes(normP));
-      if(found) return found;
-    }
-    return null;
-  };
-  const dateKey = findKey('date','Date') || keys[0];
-  const typeKey = findKey('product type','product_type','النوع','Product type','Product Type','product type 2','product type2','product_type2','Product type 2') || keys[1];
-  const qtyKey = findKey('Pro. Quantity Kg','quantity kg','qty kg','qty_kg','Quantity Kg','Quantity','الكمية','qty');
+  // استخدام أسماء الأعمدة بالظبط
+  const dateKey = 'date';
+  const typeKey = 'product type2';
+  const qtyKey = 'Pro. Quantity Kg';
 
   return rows.map(r=>{
-    const rawType = r[typeKey] || '';
+    const rawType = r[typeKey] !== undefined ? r[typeKey] : (r['product type2'] || r['product type 2'] || r['product type'] || '');
     return {
-      date: parseDate(r[dateKey] || ''),
+      date: parseDate(r[dateKey] || r['Date'] || ''),
       product_type: String(rawType).trim(),
-      qty_kg: parseFloat(r[qtyKey]) || 0,
+      qty_kg: parseFloat(r[qtyKey] || r['Pro. Quantity Kg'] || 0) || 0,
     };
   }).filter(r=>r.date);
 }
@@ -897,11 +897,11 @@ function baseOptions(extra){
 function openScrapReportModal(){
   const m = document.getElementById('fMonth').value;
   const periodInput = document.getElementById('reportPeriodLabel');
-  if(!periodInput.value){
-    if(m && m!=='all'){
-      const [y,mo] = m.split('-');
-      periodInput.value = (MONTHS_AR[parseInt(mo)]||mo) + '-' + y.slice(2);
-    }
+  if(m && m!=='all'){
+    const [y,mo] = m.split('-');
+    periodInput.value = (MONTHS_AR[parseInt(mo)]||mo) + '-' + y.slice(2);
+  }else{
+    periodInput.value = '';
   }
 
   // حساب إنتاج PE و PVC تلقائي من بيانات الإنتاج
