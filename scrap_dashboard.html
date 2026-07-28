@@ -138,7 +138,7 @@
 
   /* ===== Grid layout ===== */
   .grid{display:grid; grid-template-columns:1.55fr 1fr; gap:14px; margin-bottom:14px;}
-  .grid2{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;}
   .card{
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
     padding:20px; backdrop-filter:blur(20px);
@@ -382,11 +382,6 @@
       <h3>اتجاه الهالك الشهري</h3>
       <div class="hint">إجمالي الوزن بالكجم لكل شهر</div>
       <div class="chart-box"><canvas id="trendChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>الهالك حسب الشيفت</h3>
-      <div class="hint">شيفت A مقابل شيفت B</div>
-      <div class="chart-box"><canvas id="shiftChart"></canvas></div>
     </div>
   </div>
 
@@ -658,7 +653,6 @@ function renderAll(){
   renderGauge(data);
   renderProduct(data);
   renderTrend(data);
-  renderShift(data);
   renderMachine(data);
   renderSize(data);
   renderTable(data);
