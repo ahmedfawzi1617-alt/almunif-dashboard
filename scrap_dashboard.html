@@ -548,6 +548,7 @@ function normalizeRows(rows, fromSheet){
         color: r['color'] || r['Color'] || r['Color'] || '',
         source: r['source of defect'] || r['source'] || '',
         defect_ar: r['defect arabic'] || r['defect_ar'] || '',
+        defect_ar2: r['defect arabic 2'] || r['defect_arabic_2'] || '',
         shift: r['shift'] || '',
         defect_en: r['defect english'] || r['defect_en'] || '',
         weight: parseFloat(r['defect weight (Kg)'] || r['weight'] || 0) || 0,
@@ -556,7 +557,7 @@ function normalizeRows(rows, fromSheet){
     return {
       date: parseDate(r.date), product_type:r.product_type, product_type3:r.product_type3||'', machine:r.machine, source:r.source,
       product:r.product||'', length:r.length||'', color:r.color||'',
-      defect_ar:r.defect_ar, shift:r.shift, defect_en:r.defect_en, weight:r.weight||0
+      defect_ar:r.defect_ar, defect_ar2:r.defect_ar2||'', shift:r.shift, defect_en:r.defect_en, weight:r.weight||0
     };
   }).filter(r=>r.date);
 }
@@ -926,7 +927,7 @@ function generateScrapReport(){
   // تجميع حسب العيب لكل مجموعة (PE / PVC)
   const groups = {}; // { defect: {pe:{count,weight}, pvc:{count,weight}} }
   data.forEach(r=>{
-    const defect = r.defect_ar || r.defect_en || 'غير محدد';
+    const defect = r.defect_ar2 || r.defect_ar || r.defect_en || 'غير محدد';
     if(!groups[defect]) groups[defect] = { pe:{count:0,weight:0}, pvc:{count:0,weight:0} };
     if(isPE(r.product_type) && !isPVC(r.product_type)){
       groups[defect].pe.count++; groups[defect].pe.weight += r.weight;
@@ -955,9 +956,9 @@ function generateScrapReport(){
   const bodyRows = rows.map(r=>`
     <tr>
       <td class="defect-cell">${r.defect}</td>
-      <td>${nzc(r.peCount)}</td><td>${nz(r.peWeight)}</td><td>${pct(r.peWeight,totalPE)}</td>
-      <td>${nzc(r.pvcCount)}</td><td>${nz(r.pvcWeight)}</td><td>${pct(r.pvcWeight,totalPVC)}</td>
-      <td>${nzc(r.totalCount)}</td><td>${nz(r.totalWeight)}</td><td>${pct(r.totalWeight,grandTotal)}</td>
+      <td class="pe-col">${nzc(r.peCount)}</td><td class="pe-col">${nz(r.peWeight)}</td><td class="pe-col">${pct(r.peWeight,totalPE)}</td>
+      <td class="pvc-col">${nzc(r.pvcCount)}</td><td class="pvc-col">${nz(r.pvcWeight)}</td><td class="pvc-col">${pct(r.pvcWeight,totalPVC)}</td>
+      <td class="total-col">${nzc(r.totalCount)}</td><td class="total-col">${nz(r.totalWeight)}</td><td class="total-col">${pct(r.totalWeight,grandTotal)}</td>
     </tr>`).join('');
 
   const scrapPctPE = (prodPE || totalPE) ? ((totalPE/1000)/(prodPE + totalPE/1000)*100).toFixed(2)+'%' : '—';
@@ -980,15 +981,28 @@ function generateScrapReport(){
   header .period{font-size:14px; font-weight:700; color:#2C3E6B; text-decoration:underline; margin-bottom:4px;}
   header .title{font-size:16px; font-weight:700; color:#2C3E6B; text-decoration:underline;}
   table{width:100%; border-collapse:collapse; font-size:12px;}
-  th, td{border:1px solid #999; padding:5px 6px; text-align:center;}
-  .defect-cell{text-align:right; font-weight:600;}
-  thead tr.group-row th{background:#2C3E6B; color:#fff; font-size:12.5px; padding:6px;}
-  thead tr.sub-row th{background:#eef1f6; font-size:11px; font-weight:700;}
-  tbody tr:nth-child(even){background:#fafafa;}
-  tfoot td{font-weight:800; background:#dfe4ee;}
-  tfoot tr.total-row td{background:#2C3E6B; color:#fff;}
+  th, td{border:1px solid #777; padding:5px 7px; text-align:center;}
+  td.pe-col, th.pe-col{border-left:3px solid #1b7a5a;}
+  td.pvc-col, th.pvc-col{border-left:3px solid #7b3fa0;}
+  td.total-col, th.total-col{border-left:3px solid #c0392b;}
+  .defect-cell{text-align:right; font-weight:700;}
+  thead tr.group-row th{background:#1a3a5c; color:#fff; font-size:12.5px; padding:7px;}
+  thead tr.group-row th.pe-head{background:#1b7a5a; color:#fff;}
+  thead tr.group-row th.pvc-head{background:#7b3fa0; color:#fff;}
+  thead tr.group-row th.total-head{background:#c0392b; color:#fff;}
+  thead tr.sub-row th{background:#eef1f6; font-size:11px; font-weight:700; color:#222;}
+  thead tr.sub-row th.pe-sub{background:#d4f5e8;}
+  thead tr.sub-row th.pvc-sub{background:#eed9fa;}
+  thead tr.sub-row th.total-sub{background:#fce4e0;}
+  tbody tr:nth-child(even){background:#f5f7fa;}
+  tbody tr:hover{background:#e8edf4;}
+  tfoot td{font-weight:800;}
+  tfoot tr.total-row td{background:#1a3a5c; color:#fff; font-size:13px;}
   tfoot tr.prod-row td{background:#4a6fa5; color:#fff;}
-  tfoot tr.pct-row td{color:#C0392B; font-weight:800; border-top:none;}
+  tfoot tr.pct-row td{font-weight:800; border-top:2px solid #555;}
+  tfoot tr.pct-row td.pe-pct{color:#1b7a5a;}
+  tfoot tr.pct-row td.pvc-pct{color:#7b3fa0;}
+  tfoot tr.pct-row td.total-pct{color:#c0392b;}
   footer{text-align:center; font-size:11px; color:#888; margin-top:22px; font-style:italic;}
   @media print{
     .print-bar{display:none;}
@@ -1005,37 +1019,37 @@ function generateScrapReport(){
   <table>
     <thead>
       <tr class="group-row">
-        <th rowspan="2"></th>
-        <th colspan="3">PE</th>
-        <th colspan="3">PVC</th>
-        <th colspan="3">TOTAL</th>
+        <th rowspan="2" style="background:#1a3a5c;"></th>
+        <th colspan="3" class="pe-head">PE</th>
+        <th colspan="3" class="pvc-head">PVC</th>
+        <th colspan="3" class="total-head">TOTAL</th>
       </tr>
       <tr class="sub-row">
-        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
-        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
-        <th>مرات التكرار</th><th>وزن الأسكراب</th><th>%</th>
+        <th class="pe-sub pe-col">مرات التكرار</th><th class="pe-sub pe-col">وزن الأسكراب</th><th class="pe-sub pe-col">%</th>
+        <th class="pvc-sub pvc-col">مرات التكرار</th><th class="pvc-sub pvc-col">وزن الأسكراب</th><th class="pvc-sub pvc-col">%</th>
+        <th class="total-sub total-col">مرات التكرار</th><th class="total-sub total-col">وزن الأسكراب</th><th class="total-sub total-col">%</th>
       </tr>
-      <tr><th class="defect-cell" style="background:#f7f7f7;">العيب</th><th colspan="9"></th></tr>
+      <tr><th class="defect-cell" style="background:#dce1e8;">العيب</th><th colspan="9" style="background:#dce1e8;"></th></tr>
     </thead>
     <tbody>${bodyRows}</tbody>
     <tfoot>
       <tr class="total-row">
         <td>الإجمالي</td>
-        <td colspan="2">${fmtNum(totalPE)} kg</td><td></td>
-        <td colspan="2">${fmtNum(totalPVC)} kg</td><td></td>
-        <td colspan="2">${fmtNum(grandTotal)} kg</td><td></td>
+        <td colspan="2" class="pe-col">${fmtNum(totalPE)} kg</td><td class="pe-col"></td>
+        <td colspan="2" class="pvc-col">${fmtNum(totalPVC)} kg</td><td class="pvc-col"></td>
+        <td colspan="2" class="total-col">${fmtNum(grandTotal)} kg</td><td class="total-col"></td>
       </tr>
       <tr class="prod-row">
         <td>Total production</td>
-        <td colspan="2">${prodPE ? prodPE+' ton' : '—'}</td><td></td>
-        <td colspan="2">${prodPVC ? prodPVC+' ton' : '—'}</td><td></td>
-        <td colspan="2">${prodTotal ? prodTotal.toFixed(1)+' ton' : '—'}</td><td></td>
+        <td colspan="2" class="pe-col">${prodPE ? prodPE+' ton' : '—'}</td><td class="pe-col"></td>
+        <td colspan="2" class="pvc-col">${prodPVC ? prodPVC+' ton' : '—'}</td><td class="pvc-col"></td>
+        <td colspan="2" class="total-col">${prodTotal ? prodTotal.toFixed(1)+' ton' : '—'}</td><td class="total-col"></td>
       </tr>
       <tr class="pct-row">
-        <td></td>
-        <td colspan="3">${scrapPctPE}</td>
-        <td colspan="3">${scrapPctPVC}</td>
-        <td colspan="3">${scrapPctTotal}</td>
+        <td style="background:#dce1e8; font-weight:700;">نسبة الهالك</td>
+        <td colspan="3" class="pe-pct pe-col">${scrapPctPE}</td>
+        <td colspan="3" class="pvc-pct pvc-col">${scrapPctPVC}</td>
+        <td colspan="3" class="total-pct total-col">${scrapPctTotal}</td>
       </tr>
     </tfoot>
   </table>
