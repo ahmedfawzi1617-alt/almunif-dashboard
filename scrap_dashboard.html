@@ -1046,6 +1046,9 @@ function generateScrapReport(){
     tfoot tr.prod-row td{background:#fff !important; color:#000 !important; border-top:1px solid #999;}
     tfoot tr.pct-row td{background:#f9f9f9 !important; color:#000 !important; border-top:2px double #000;}
     header .period, header .title{color:#000;}
+    .chart-page{border:2px solid #1a3a5c; border-radius:8px; padding:20px; margin:20px 0; page-break-inside:avoid;}
+    @media print{.chart-page{page-break-after:always;}}
+    @media print{.chart-page:last-child{page-break-after:auto;}}
   }
 </style>
 </head>
@@ -1093,25 +1096,52 @@ function generateScrapReport(){
     </tfoot>
   </table>
 
-  <div style="margin-top:20px;">
-    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
+  <div class="chart-page">
+    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
     <div style="max-width:700px; margin:0 auto;"><canvas id="defectCountChart" height="300"></canvas></div>
+  </div>
+
+  <div class="chart-page">
+    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
+    <div style="max-width:700px; margin:0 auto;"><canvas id="defectWeightChart" height="300"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة تحليل الهالك — المنيف للأنابيب</footer>
 <script>
 const labels = ${JSON.stringify(rows.map(r=>r.defect))};
-const peData = ${JSON.stringify(rows.map(r=>r.peWeight))};
-const pvcData = ${JSON.stringify(rows.map(r=>r.pvcWeight))};
 Chart.register(ChartDataLabels);
 new Chart(document.getElementById('defectCountChart'), {
   type:'bar',
   data:{
     labels,
     datasets:[
-      {label:'PE', data:peData, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
+      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peCount))}, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}},
+      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcCount))}, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:true,
+    plugins:{
+      legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
+      tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
+    },
+    layout:{padding:{top:28}},
+    scales:{
+      x:{ticks:{font:{family:'Cairo',size:10}}, grid:{display:false}},
+      y:{beginAtZero:true, ticks:{font:{family:'Cairo',size:10}}, grid:{color:'#ddd'}}
+    }
+  }
+});
+new Chart(document.getElementById('defectWeightChart'), {
+  type:'bar',
+  data:{
+    labels,
+    datasets:[
+      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peWeight))}, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}},
-      {label:'PVC', data:pvcData, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
+      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcWeight))}, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}}
     ]
   },
