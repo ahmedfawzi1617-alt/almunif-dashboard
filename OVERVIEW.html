@@ -255,6 +255,7 @@
     #navFab{ top:auto; bottom:22px; right:22px; width:46px; height:46px; }
   }
 </style>
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 <div class="wrap">
@@ -310,7 +311,7 @@
     </div>
     <div class="status">
       <span class="dot"></span>
-      <span id="statusText">بيانات تجريبية — لسه مش متصل بالشيت</span>
+      <span id="statusText">آخر تحديث: —</span>
       <button class="refresh-btn" onclick="loadOverview()">تحديث الآن</button>
     </div>
   </header>
@@ -319,7 +320,7 @@
     ⚠️ تعذّر تحميل بعض البيانات — جرب تحديث الصفحة.
   </div>
 
-  <div class="hint" style="text-align:center; margin-bottom:18px; font-size:13px;">آخر تحديث: <span id="lastUpdate">—</span></div>
+
 
   <div class="overview-grid">
 
@@ -482,7 +483,7 @@ async function loadOverview(){
     document.getElementById('ovRawGrade').textContent = top ? top[0] : '—';
   }
 
-  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ar-EG');
+  document.getElementById('statusText').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG');
   document.getElementById('setupBanner').style.display = (prodRows && scrapRows && labRows && rawRows) ? 'none' : 'flex';
 }
 
@@ -532,6 +533,6 @@ document.addEventListener('keypress', e=>{
   }
 });
 </script>
-
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
 </body>
 </html>
