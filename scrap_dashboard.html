@@ -398,6 +398,12 @@
     </div>
   </div>
 
+  <div class="card" style="margin-bottom:14px;">
+    <h3>تكرار العيوب — PE vs PVC</h3>
+    <div class="hint">عدد مرات تكرار كل عيب مصنف حسب النوع (مرتب حسب إجمالي الوزن)</div>
+    <div class="chart-box tall"><canvas id="defectComparisonChart"></canvas></div>
+  </div>
+
   <div class="card">
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
       <div>
@@ -655,6 +661,7 @@ function renderAll(){
   renderTrend(data);
   renderMachine(data);
   renderSize(data);
+  renderDefectComparison(data);
   renderTable(data);
   renderDailyScrap(data);
 }
@@ -837,6 +844,44 @@ function renderSize(data){
       scales:{
         x:{ticks:{color:'#aebdd4'}, grid:{color:'rgba(255,255,255,0.05)'}},
         y:{ticks:{color:'#aebdd4', font:{family:'Cairo', size:11.5}}, grid:{display:false}}
+      }
+    })
+  });
+}
+
+function renderDefectComparison(data){
+  const isPE = p => (p||'').toUpperCase().includes('PE');
+  const isPVC = p => (p||'').toUpperCase().includes('PVC');
+  const groups = {};
+  data.forEach(r=>{
+    const defect = r.defect_ar || r.defect_en || 'غير محدد';
+    if(!groups[defect]) groups[defect] = {pe:0, pvc:0};
+    if(isPE(r.product_type) && !isPVC(r.product_type)) groups[defect].pe++;
+    else if(isPVC(r.product_type)) groups[defect].pvc++;
+  });
+  const entries = Object.entries(groups).sort((a,b)=>(b[1].pe+b[1].pvc)-(a[1].pe+a[1].pvc)).slice(0,15);
+  const labels = entries.map(e=>e[0]);
+  const peData = entries.map(e=>e[1].pe);
+  const pvcData = entries.map(e=>e[1].pvc);
+
+  destroyChart('defectComparison');
+  charts.defectComparison = new Chart(byId('defectComparisonChart'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'PE', data:peData, backgroundColor:'#2dd4bf', borderRadius:6, maxBarThickness:28,
+          datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', font:{family:'Cairo', weight:'800', size:10.5}, formatter:v=>v||''}},
+        {label:'PVC', data:pvcData, backgroundColor:'#9b8cf2', borderRadius:6, maxBarThickness:28,
+          datalabels:{color:'#eaf1fb', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', font:{family:'Cairo', weight:'800', size:10.5}, formatter:v=>v||''}}
+      ]
+    },
+    options: baseOptions({
+      plugins:{legend:{position:'top', labels:{color:'#aebdd4', font:{family:'Cairo', size:11.5}, padding:14, usePointStyle:true}}},
+      layout:{padding:{top:28}},
+      scales:{
+        x:{ticks:{color:'#aebdd4', font:{family:'Cairo', size:10}}, grid:{display:false}},
+        y:{ticks:{color:'#aebdd4'}, grid:{color:'rgba(255,255,255,0.05)'}}
       }
     })
   });
@@ -1103,21 +1148,25 @@ function generateScrapReport(){
 const labels = ${JSON.stringify(rows.map(r=>r.defect))};
 const peData = ${JSON.stringify(rows.map(r=>r.peCount))};
 const pvcData = ${JSON.stringify(rows.map(r=>r.pvcCount))};
+Chart.register(ChartDataLabels);
 new Chart(document.getElementById('defectCountChart'), {
   type:'bar',
   data:{
     labels,
     datasets:[
-      {label:'PE', data:peData, backgroundColor:'#2e8b57', borderRadius:4},
-      {label:'PVC', data:pvcData, backgroundColor:'#7c3aed', borderRadius:4}
+      {label:'PE', data:peData, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}},
+      {label:'PVC', data:pvcData, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:10.5}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}}
     ]
   },
   options:{
     responsive:true, maintainAspectRatio:true,
     plugins:{
-      legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16}},
+      legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
       tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
     },
+    layout:{padding:{top:28}},
     scales:{
       x:{ticks:{font:{family:'Cairo',size:10}}, grid:{display:false}},
       y:{beginAtZero:true, ticks:{font:{family:'Cairo',size:10}}, grid:{color:'#ddd'}}
