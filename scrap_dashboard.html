@@ -239,6 +239,7 @@
     #navFab{ top:auto; bottom:22px; right:22px; width:46px; height:46px; }
   }
 </style>
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 <div class="wrap">
@@ -260,10 +261,10 @@
       <p style="text-align:center;">هيتحسب من البيانات المفلترة حاليًا في الداشبورد</p>
       <label class="modal-label">عنوان الفترة (يظهر أعلى التقرير)</label>
       <input type="text" id="reportPeriodLabel" placeholder="مثال: Jun-26 أو 1/1/2026-30/6/2026">
-      <label class="modal-label">إجمالي إنتاج PE للفترة (طن)</label>
-      <input type="number" id="reportProdPE" placeholder="مثال: 555.4" step="0.1">
-      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن)</label>
-      <input type="number" id="reportProdPVC" placeholder="مثال: 726.8" step="0.1">
+      <label class="modal-label">إجمالي إنتاج PE للفترة (طن) — تحسب تلقائي</label>
+      <input type="text" id="reportProdPE" readonly style="background:#1a2a3e; color:var(--teal); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
+      <label class="modal-label">إجمالي إنتاج PVC للفترة (طن) — تحسب تلقائي</label>
+      <input type="text" id="reportProdPVC" readonly style="background:#1a2a3e; color:var(--amber); font-weight:800;" placeholder="بيتم جلبه تلقائي من شيت الإنتاج...">
       <button onclick="generateScrapReport()">توليد التقرير</button>
       <button onclick="closeScrapReportModal()" style="background:var(--surface-hi); color:var(--text-0); margin-top:8px;">إلغاء</button>
     </div>
@@ -456,10 +457,14 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=1615042796&single=true&output=csv"; // <-- حط رابط الـ CSV بتاعك هنا
 const REFRESH_MS = 90000;   // تحديث تلقائي كل 90 ثانية
 
+// رابط شيت الإنتاج (نفس الرابط اللي في Production.html) — عشان يحسب الإنتاج تلقائي
+const PROD_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRy9XHGoK6iYQSRku-7qWDSaUveGXT1ZjpjRa2Av0cBrsXeljctBGdF7AHOoKaSgoi7Nz2g6djTTZxC/pub?gid=390647355&single=true&output=csv"; // <-- حط رابط شيت الإنتاج هنا
+
 const MONTHS_AR = {1:'JAN',2:'FEB',3:'MAR',4:'APR',5:'MAY',6:'JUN',7:'JUL',8:'AUG',9:'SEP',10:'OCT',11:'NOV',12:'DEC'};
 const MONTHLY_TARGET_KG = 6000; // عدّل الهدف الشهري المتفق عليه للهالك
 
-let RAW = [];      // كل الصفوف بعد التطبيع
+let RAW = [];      // كل صفوف الهالك بعد التطبيع
+let PROD_RAW = []; // بيانات الإنتاج
 let charts = {};   // مراجع الرسومات عشان نعملها destroy/update
 
 if(window.ChartDataLabels){ Chart.register(ChartDataLabels); }
@@ -478,7 +483,7 @@ async function loadData(manual){
       document.getElementById('setupBanner').style.display = 'none';
       statusEl.textContent = 'متصل — آخر تحديث ' + new Date().toLocaleTimeString('ar-EG');
     }catch(err){
-      console.error('فشل تحميل الشيت:', err);
+      console.error('فشل تحميل شيت الهالك:', err);
       statusEl.textContent = 'تعذّر الاتصال بالشيت — بيعرض بيانات تجريبية';
       if(RAW.length === 0) RAW = normalizeRows(DEMO_DATA, false);
     }
@@ -487,8 +492,44 @@ async function loadData(manual){
     statusEl.textContent = 'بيانات تجريبية — لسه مش متصل بالشيت';
   }
 
+  // تحميل بيانات الإنتاج تلقائي
+  if(PROD_CSV_URL){
+    try{
+      const res2 = await fetch(PROD_CSV_URL + (PROD_CSV_URL.includes('?') ? '&' : '?') + 'ts=' + Date.now());
+      const csvText2 = await res2.text();
+      const parsed2 = Papa.parse(csvText2, {header:true, skipEmptyLines:true});
+      PROD_RAW = normalizeProdRows(parsed2.data, true);
+    }catch(err){
+      console.error('فشل تحميل شيت الإنتاج:', err);
+      PROD_RAW = [];
+    }
+  }
+
   populateFilters();
   renderAll();
+}
+
+function normalizeProdRows(rows, fromSheet){
+  return rows.map(r=>{
+    if(fromSheet){
+      const pick = (...names) => {
+        for(const n of names){ if(r[n]!==undefined && r[n]!=='') return r[n]; }
+        const norm = s => String(s).replace(/\s+/g,' ').trim().toLowerCase();
+        for(const n of names){ const t=norm(n); const k=Object.keys(r).find(k=>norm(k)===t); if(k && r[k]!=='') return r[k]; }
+        return '';
+      };
+      return {
+        date: parseDate(pick('date','Date')),
+        product_type: pick('product type','Product Type','product_type') || '',
+        qty_kg: parseFloat(pick('Pro. Quantity Kg','pro. quantity kg','Quantity Kg','qty kg','qty_kg')) || 0,
+      };
+    }
+    return {
+      date: parseDate(r.date),
+      product_type: r.product_type || '',
+      qty_kg: parseFloat(r.qty_kg) || 0,
+    };
+  }).filter(r=>r.date);
 }
 
 function normalizeRows(rows, fromSheet){
@@ -858,6 +899,19 @@ function openScrapReportModal(){
       periodInput.value = (MONTHS_AR[parseInt(mo)]||mo) + '-' + y.slice(2);
     }
   }
+
+  // حساب إنتاج PE و PVC تلقائي من بيانات الإنتاج
+  const fMonth = m;
+  const prodRows = (fMonth && fMonth!=='all') ? PROD_RAW.filter(r=>r.date.slice(0,7)===fMonth) : PROD_RAW;
+  let peKg = 0, pvcKg = 0;
+  prodRows.forEach(r=>{
+    const t = (r.product_type||'').toUpperCase();
+    if(t.includes('PE')) peKg += r.qty_kg;
+    else if(t.includes('PVC')) pvcKg += r.qty_kg;
+  });
+  document.getElementById('reportProdPE').value = peKg ? (peKg/1000).toFixed(1) : '—';
+  document.getElementById('reportProdPVC').value = pvcKg ? (pvcKg/1000).toFixed(1) : '—';
+
   document.getElementById('scrapReportOverlay').classList.add('open');
 }
 function closeScrapReportModal(){
@@ -869,8 +923,10 @@ function generateScrapReport(){
   if(!data.length){ alert('مفيش بيانات هالك مطابقة للفلتر الحالي.'); return; }
 
   const periodLabel = document.getElementById('reportPeriodLabel').value.trim() || 'الفترة الحالية';
-  const prodPE = parseFloat(document.getElementById('reportProdPE').value) || 0;
-  const prodPVC = parseFloat(document.getElementById('reportProdPVC').value) || 0;
+  const peVal = document.getElementById('reportProdPE').value;
+  const pvcVal = document.getElementById('reportProdPVC').value;
+  const prodPE = (peVal && peVal!=='—') ? parseFloat(peVal) : 0;
+  const prodPVC = (pvcVal && pvcVal!=='—') ? parseFloat(pvcVal) : 0;
   const prodTotal = prodPE + prodPVC;
 
   const isPE = p => (p||'').toUpperCase().includes('PE');
@@ -1058,6 +1114,6 @@ document.addEventListener('keypress', e=>{
   }
 });
 </script>
-
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
 </body>
 </html>
