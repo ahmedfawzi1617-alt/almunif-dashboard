@@ -688,7 +688,7 @@ function renderPareto(data){
       labels: sorted.map(s=>s[0]),
       datasets:[
         {type:'bar', label:'الوزن (كجم)', data:sorted.map(s=>s[1]), backgroundColor:'#f2a93b', borderRadius:6, yAxisID:'y',
-          datalabels:{color:'#ffd27a', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'top', offset:2, clamp:true, clip:false, display:'auto',
+          datalabels:{color:'#ffd27a', textStrokeColor:'#070f1c', textStrokeWidth:3.5, anchor:'end', align:'end', offset:0, clamp:true, clip:false, display:'auto',
             font:{family:'Cairo', weight:'800', size:10.5}, formatter:v=>fmt(v)}},
         {type:'line', label:'النسبة التراكمية %', data:cumPct, borderColor:'#2dd4bf', backgroundColor:'#2dd4bf', tension:.3, yAxisID:'y1', pointRadius:3,
           datalabels:{color:'#8ff2e6', textStrokeColor:'#070f1c', textStrokeWidth:3.5, align:'bottom', offset:8, clamp:true, clip:false, display:'auto',
