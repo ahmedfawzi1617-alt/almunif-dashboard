@@ -996,7 +996,6 @@ function generateScrapReport(){
 <title>تقرير الهالك — ${periodLabel}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   *{box-sizing:border-box;}
   body{font-family:'Cairo',sans-serif; color:#1a1a2e; margin:0; padding:26px 30px; background:#fff;}
@@ -1091,39 +1090,7 @@ function generateScrapReport(){
       </tr>
     </tfoot>
   </table>
-
-  <div style="margin-top:20px;">
-    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
-    <div style="max-width:700px; margin:0 auto;"><canvas id="defectCountChart" height="300"></canvas></div>
-  </div>
-
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة تحليل الهالك — المنيف للأنابيب</footer>
-<script>
-const labels = ${JSON.stringify(rows.map(r=>r.defect))};
-const peData = ${JSON.stringify(rows.map(r=>r.peCount))};
-const pvcData = ${JSON.stringify(rows.map(r=>r.pvcCount))};
-new Chart(document.getElementById('defectCountChart'), {
-  type:'bar',
-  data:{
-    labels,
-    datasets:[
-      {label:'PE', data:peData, backgroundColor:'#2e8b57', borderRadius:4},
-      {label:'PVC', data:pvcData, backgroundColor:'#7c3aed', borderRadius:4}
-    ]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:true,
-    plugins:{
-      legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16}},
-      tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
-    },
-    scales:{
-      x:{ticks:{font:{family:'Cairo',size:10}}, grid:{display:false}},
-      y:{beginAtZero:true, ticks:{font:{family:'Cairo',size:10}}, grid:{color:'#ddd'}}
-    }
-  }
-});
-</script>
 </body>
 </html>`;
   const win = window.open('', '_blank');
