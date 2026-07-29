@@ -651,7 +651,7 @@ function renderMaterial(data){
 }
 
 function renderTable(data){
-  const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = data.map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || b[1]-a[1]).map(([d])=>d);
   document.getElementById('tableCount').textContent = sorted.length;
   const nz = v => (v===null || v===undefined || v==='') ? '—' : v;
   document.getElementById('testTableBody').innerHTML = sorted.map(d=>`
@@ -695,7 +695,7 @@ function baseOptions(extra){
    ============================================================ */
 function exportReport(){
   const btn = document.getElementById('exportBtn');
-  const data = [...getFiltered()].sort((a,b)=>b.date.localeCompare(a.date));
+  const data = getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || b[1]-a[1]).map(([d])=>d);
   if(!data.length){ alert('مفيش عينات مطابقة للفلتر الحالي عشان نصدّرها.'); return; }
 
   const now = new Date();
