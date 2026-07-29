@@ -761,7 +761,7 @@ function baseOptions(extra){
    ============================================================ */
 function exportReport(){
   const btn = document.getElementById('exportBtn');
-  const data = [...getFiltered()].sort((a,b)=>b.date.localeCompare(a.date));
+  const data = getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || b[1]-a[1]).map(([d])=>d);
   if(!data.length){ alert('مفيش اختبارات مطابقة للفلتر الحالي عشان نصدّرها.'); return; }
 
   const now = new Date();
