@@ -521,6 +521,7 @@ function normalizeRows(rows, fromSheet){
         }
         return '';
       };
+      function cleanCustomer(v){ return (!v || v===0 || v==='0') ? 'بدون' : String(v); }
       return {
         date: parseDate(pick('date','Date')),
         product_type: pick('product type','Product Type') || '',
@@ -536,14 +537,14 @@ function normalizeRows(rows, fromSheet){
         category: pick('Column1') || '',
         std_kg: toNum(pick('st.weight','st. weight','St. Weight','st weight','St Weight','ST Weight','Standard Weight','Standard Kg','Std Kg','Theoretical Weight','Theo Weight','Theo Kg','theoretical weight','theo weight','theo kg','std_kg','over weight','Over Weight','Overweight','overweight','Std Wt','std wt','Expected Production Weight','Expected Weight','Expected Kg','expected weight','expected kg','Target Weight','target weight','target kg','Planned Weight','planned weight','planned kg','الوزن المتوقع','Expected','expected','Budget','budget','Std','std')),
         rework: toNum(pick('Rework','rework')),
-        customer: pick('customer (vlook)','customer') || '',
+        customer: cleanCustomer(pick('customer (vlook)','customer')),
         scrap_pct: toNum(pick('scrap %','Scrap %')),
       };
     }
     return {
       date: parseDate(r.date), product_type:r.product_type||'', product_type3:r.product_type3||'', machine:r.machine||'', product:r.product||'',
       length:r.length, order_no:r.order_no||'', qty_pc:r.qty_pc, qty_kg:r.qty_kg, color:r.color||'',
-      scrap_kg:r.scrap_kg, category:r.category||'', rework:r.rework, customer:r.customer||'', scrap_pct:r.scrap_pct, std_kg:r.std_kg
+      scrap_kg:r.scrap_kg, category:r.category||'', rework:r.rework, customer:(!r.customer||r.customer===0||r.customer==='0')?'بدون':String(r.customer), scrap_pct:r.scrap_pct, std_kg:r.std_kg
     };
   }).filter(r=>r.date);
 }
