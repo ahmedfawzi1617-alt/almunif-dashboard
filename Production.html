@@ -816,12 +816,12 @@ function renderSummary(data){
   const sorted = Object.values(groups).sort((a,b)=>b.maxDate.localeCompare(a.maxDate) || a.idx-b.idx);
   document.getElementById('summaryCount').textContent = sorted.length;
   document.getElementById('summaryTableBody').innerHTML = sorted.map(g=>
-    `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${fmtKg(g.kg)}</td></tr>`
+    `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td dir="ltr">${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${fmtKg(g.kg)}</td></tr>`
   ).join('');
 }
 
 function renderTable(data){
-  const sorted = data.map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || b[1]-a[1]).map(([d])=>d);
+  const sorted = data.map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || a[1]-b[1]).map(([d])=>d);
   document.getElementById('tableCount').textContent = sorted.length;
   const nz = v => (v===null || v===undefined || v==='') ? '—' : v;
   const badgeClass = t => {
@@ -838,7 +838,7 @@ function renderTable(data){
       <td>${nz(d.machine)}</td>
       <td class="col-size">${nz(d.product)}</td>
       <td>${nz(d.length)}</td>
-      <td>${nz(d.order_no)}</td>
+      <td dir="ltr">${nz(d.order_no)}</td>
       <td>${nz(d.qty_pc)}</td>
       <td>${nz(d.qty_kg)}</td>
       <td>${nz(d.color)}</td>
@@ -992,7 +992,7 @@ getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) |
     if(d.date > groups[d.order_no].maxDate) groups[d.order_no].maxDate = d.date;
   });
   const orderList = Object.values(groups).sort((a,b)=>b.maxDate.localeCompare(a.maxDate) || a.idx-b.idx);
-  const rows = orderList.map((g,i)=>`<tr><td>${i+1}</td><td>${g.customer}</td><td>${g.size}</td><td>${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${Math.round(g.kg).toLocaleString('en-US')}</td></tr>`).join('');
+  const rows = orderList.map((g,i)=>`<tr><td>${i+1}</td><td>${g.customer}</td><td>${g.size}</td><td dir="ltr">${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${Math.round(g.kg).toLocaleString('en-US')}</td></tr>`).join('');
   const totalKg = data.reduce((s,d)=>s+(d.qty_kg||0),0);
   const totalScrap = data.reduce((s,d)=>s+(d.scrap_kg||0),0);
   const scrapPctMsg = totalKg ? ((totalScrap/(totalKg+totalScrap)*100).toFixed(2)+'%') : '—';
@@ -1010,10 +1010,10 @@ getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) |
 
 function printFullTable(){
   const data = 
-getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || b[1]-a[1]).map(([d])=>d);
+getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) || a[1]-b[1]).map(([d])=>d);
   if(!data.length){ alert('مفيش بيانات مطابقة للفلتر.'); return; }
   const esc = s => (s==null||s==='')?'—':String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const rows = data.map(d=>`<tr><td>${esc(d.date)}</td><td>${esc(d.product_type)}</td><td>${esc(d.machine)}</td><td>${esc(d.product)}</td><td>${d.length||'—'}</td><td>${esc(d.order_no)}</td><td>${d.qty_pc||'—'}</td><td>${d.qty_kg||'—'}</td><td>${esc(d.color)}</td><td>${esc(d.customer)}</td><td>${d.scrap_kg||'—'}</td><td>${d.scrap_pct!=null?d.scrap_pct.toFixed(2)+'%':'—'}</td></tr>`).join('');
+  const rows = data.map(d=>`<tr><td>${esc(d.date)}</td><td>${esc(d.product_type)}</td><td>${esc(d.machine)}</td><td>${esc(d.product)}</td><td>${d.length||'—'}</td><td dir="ltr">${esc(d.order_no)}</td><td>${d.qty_pc||'—'}</td><td>${d.qty_kg||'—'}</td><td>${esc(d.color)}</td><td>${esc(d.customer)}</td><td>${d.scrap_kg||'—'}</td><td>${d.scrap_pct!=null?d.scrap_pct.toFixed(2)+'%':'—'}</td></tr>`).join('');
   const totalKg = data.reduce((s,d)=>s+(d.qty_kg||0),0);
   const html = printPageHtml(`
     <table class="info-header-table">
