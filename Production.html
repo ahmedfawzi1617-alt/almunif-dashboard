@@ -299,13 +299,15 @@
   </div>
 
   <div class="filters">
-    <input type="text" id="fGradeSearch" placeholder="🔍 بحث برقم طلبية أو عميل أو منتج..." class="search-box">
+    <input type="text" id="fSearch" placeholder="بحث" class="search-box">
     <select id="fYear"><option value="all">Year </option></select>
     <select id="fMonth"><option value="all">Month </option></select>
     <select id="fDay"><option value="all">Day </option></select>
     <select id="fGrade"><option value="all">Type </option></select>
     <select id="fMachine"><option value="all">Machine </option></select>
     <select id="fColor"><option value="all">Color </option></select>
+    <select id="fCustomer"><option value="all">Customer </option></select>
+    <select id="fProduct"><option value="all">Size </option></select>
   </div>
 
   <div class="kpis">
@@ -600,6 +602,12 @@ function populateFilters(){
 
   const colorScope = scopedFor('cl');
   fillSelect('fColor', [...new Set(colorScope.map(r=>r.color))].filter(Boolean).sort(), v=>v, 'Color ');
+
+  const customerScope = scopedFor('cu');
+  fillSelect('fCustomer', [...new Set(customerScope.map(r=>r.customer))].filter(Boolean).sort(), v=>v, 'Customer ');
+
+  const productScope = scopedFor('pr');
+  fillSelect('fProduct', [...new Set(productScope.map(r=>r.product))].filter(Boolean).sort(), v=>v, 'Size ');
 }
 function fillSelect(id, values, labelFn, allLabel){
   const sel = document.getElementById(id);
@@ -608,11 +616,11 @@ function fillSelect(id, values, labelFn, allLabel){
   if(values.includes(current) || values.map(String).includes(current)) sel.value = current;
   else sel.value = 'all';
 }
-['fYear','fMonth','fDay','fGrade','fMachine','fColor'].forEach(id=>{
+['fYear','fMonth','fDay','fGrade','fMachine','fColor','fCustomer','fProduct'].forEach(id=>{
   document.addEventListener('change', e=>{ if(e.target.id===id){ populateFilters(); renderAll(); } });
 });
 let searchDebounce;
-document.getElementById('fGradeSearch').addEventListener('input', ()=>{
+document.getElementById('fSearch').addEventListener('input', ()=>{
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(()=>{ populateFilters(); renderAll(); }, 200);
 });
@@ -625,7 +633,9 @@ function readFilterValues(){
     gr: document.getElementById('fGrade').value,
     mc: document.getElementById('fMachine').value,
     cl: document.getElementById('fColor').value,
-    sq: document.getElementById('fGradeSearch').value.trim().toLowerCase(),
+    sq: document.getElementById('fSearch').value.trim().toLowerCase(),
+    cu: document.getElementById('fCustomer').value,
+    pr: document.getElementById('fProduct').value,
   };
 }
 function matchesFilters(r, f, exclude){
@@ -635,7 +645,9 @@ function matchesFilters(r, f, exclude){
   if(exclude!=='gr' && f.gr!=='all' && r.product_type3!==f.gr) return false;
   if(exclude!=='mc' && f.mc!=='all' && r.machine!==f.mc) return false;
   if(exclude!=='cl' && f.cl!=='all' && r.color!==f.cl) return false;
-  if(exclude!=='sq' && f.sq!=='' && !((r.order_no||'')+' '+(r.customer||'')+' '+(r.product||'')).toLowerCase().includes(f.sq)) return false;
+  if(exclude!=='sq' && f.sq!=='' && !((r.customer||'')+' '+(r.product||'')).toLowerCase().includes(f.sq)) return false;
+  if(exclude!=='cu' && f.cu!=='all' && r.customer!==f.cu) return false;
+  if(exclude!=='pr' && f.pr!=='all' && r.product!==f.pr) return false;
   return true;
 }
 
