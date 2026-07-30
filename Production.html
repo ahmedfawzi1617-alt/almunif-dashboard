@@ -806,13 +806,14 @@ function renderSummary(data){
   data.forEach(r=>{
     if(!r.order_no) return;
     if(!groups[r.order_no]){
-      groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', size: r.product||'—', length: r.length||'—', pcs: 0, kg: 0 };
+      groups[r.order_no] = { order: r.order_no, customer: r.customer||'—', size: r.product||'—', length: r.length||'—', pcs: 0, kg: 0, maxDate: r.date };
     }
     groups[r.order_no].pcs += r.qty_pc||0;
     groups[r.order_no].kg += r.qty_kg||0;
     if(r.length && groups[r.order_no].length === '—') groups[r.order_no].length = r.length;
+    if(r.date > groups[r.order_no].maxDate) groups[r.order_no].maxDate = r.date;
   });
-  const sorted = Object.values(groups).sort((a,b)=>b.kg - a.kg);
+  const sorted = Object.values(groups).sort((a,b)=>b.maxDate.localeCompare(a.maxDate));
   document.getElementById('summaryCount').textContent = sorted.length;
   document.getElementById('summaryTableBody').innerHTML = sorted.map(g=>
     `<tr><td>${g.customer}</td><td class="col-size">${g.size}</td><td>${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${fmtKg(g.kg)}</td></tr>`
@@ -984,12 +985,13 @@ getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) |
   const groups = {};
   data.forEach(d=>{
     if(!d.order_no) return;
-    if(!groups[d.order_no]) groups[d.order_no] = { order:d.order_no, customer:d.customer||'—', size:d.product||'—', length:d.length||'—', pcs:0, kg:0 };
+    if(!groups[d.order_no]) groups[d.order_no] = { order:d.order_no, customer:d.customer||'—', size:d.product||'—', length:d.length||'—', pcs:0, kg:0, maxDate:'' };
     groups[d.order_no].pcs += d.qty_pc||0;
     groups[d.order_no].kg += d.qty_kg||0;
     if(d.length && groups[d.order_no].length === '—') groups[d.order_no].length = d.length;
+    if(d.date > groups[d.order_no].maxDate) groups[d.order_no].maxDate = d.date;
   });
-  const orderList = Object.values(groups).sort((a,b)=>b.kg - a.kg);
+  const orderList = Object.values(groups).sort((a,b)=>b.maxDate.localeCompare(a.maxDate));
   const rows = orderList.map((g,i)=>`<tr><td>${i+1}</td><td>${g.customer}</td><td>${g.size}</td><td>${g.order}</td><td>${g.pcs}</td><td>${g.length}</td><td>${Math.round(g.kg).toLocaleString('en-US')}</td></tr>`).join('');
   const totalKg = data.reduce((s,d)=>s+(d.qty_kg||0),0);
   const totalScrap = data.reduce((s,d)=>s+(d.scrap_kg||0),0);
@@ -1110,3 +1112,4 @@ document.addEventListener('keypress', e=>{
 <script>if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
 </body>
 </html>
+
