@@ -1134,12 +1134,12 @@ function generateScrapReport(){
   </div>
 
   <div class="chart-page">
-    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
+    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد تكرار العيوب</h3>
     <div style="max-width:1100px; margin:0 auto; height:420px; background:#f2f2f2; padding:14px; border-radius:6px;"><canvas id="defectCountChart"></canvas></div>
   </div>
 
   <div class="chart-page">
-    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
+    <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">كمية اسكراب كل عيب</h3>
     <div style="max-width:1100px; margin:0 auto; height:420px; background:#f2f2f2; padding:14px; border-radius:6px;"><canvas id="defectWeightChart"></canvas></div>
   </div>
 
@@ -1177,9 +1177,9 @@ new Chart(document.getElementById('defectWeightChart'), {
     labels,
     datasets:[
       {label:'PE', data:${JSON.stringify(rows.map(r=>r.peWeight))}, backgroundColor:'#1e6fd9', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}},
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:6, rotation:90, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)}},
       {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcWeight))}, backgroundColor:'#f2a93b', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}}
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:6, rotation:90, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)}}
     ]
   },
   options:{
