@@ -1153,9 +1153,9 @@ new Chart(document.getElementById('defectCountChart'), {
     labels,
     datasets:[
       {label:'PE', data:${JSON.stringify(rows.map(r=>r.peCount))}, backgroundColor:'#1e6fd9', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:8, rotation:270, clamp:true, clip:false, display:true, formatter:v=>v||''}},
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:18, rotation:270, clamp:true, clip:false, display:true, formatter:v=>v||''}},
       {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcCount))}, backgroundColor:'#f2a93b', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:8, rotation:270, clamp:true, clip:false, display:true, formatter:v=>v||''}}
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:18, rotation:270, clamp:true, clip:false, display:true, formatter:v=>v||''}}
     ]
   },
   options:{
@@ -1164,7 +1164,7 @@ new Chart(document.getElementById('defectCountChart'), {
       legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
       tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
     },
-    layout:{padding:{top:60, left:10, right:10}},
+    layout:{padding:{top:90, left:10, right:10}},
     scales:{
       x:{ticks:{font:{family:'Cairo',size:12}}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
@@ -1177,9 +1177,9 @@ new Chart(document.getElementById('defectWeightChart'), {
     labels,
     datasets:[
       {label:'PE', data:${JSON.stringify(rows.map(r=>r.peWeight))}, backgroundColor:'#1e6fd9', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:8, rotation:270, clamp:true, clip:false, display:true, formatter:v=>Math.round(v)}},
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:18, rotation:270, clamp:true, clip:false, display:true, formatter:v=>Math.round(v)}},
       {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcWeight))}, backgroundColor:'#f2a93b', borderRadius:6, maxBarThickness:60,
-        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:8, rotation:270, clamp:true, clip:false, display:true, formatter:v=>Math.round(v)}}
+        datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:18, rotation:270, clamp:true, clip:false, display:true, formatter:v=>Math.round(v)}}
     ]
   },
   options:{
@@ -1188,7 +1188,7 @@ new Chart(document.getElementById('defectWeightChart'), {
       legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
       tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
     },
-    layout:{padding:{top:60, left:10, right:10}},
+    layout:{padding:{top:90, left:10, right:10}},
     scales:{
       x:{ticks:{font:{family:'Cairo',size:12}}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
