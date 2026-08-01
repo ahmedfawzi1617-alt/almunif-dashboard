@@ -1062,6 +1062,7 @@ function generateScrapReport(){
     tfoot tr.pct-row td{background:#f9f9f9 !important; color:#000 !important; border-top:2px double #000;}
     header .period, header .title{color:#000;}
     .report-section{page-break-after:always;}
+    .report-section table{page-break-inside:avoid;}
     .chart-page{page-break-inside:avoid;}
     .chart-page ~ .chart-page{page-break-before:always;}
     .chart-page:last-child{page-break-after:auto;}
@@ -1116,12 +1117,12 @@ function generateScrapReport(){
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
-    <div><canvas id="defectCountChart" height="300"></canvas></div>
+    <div style="height:340px;"><canvas id="defectCountChart"></canvas></div>
   </div>
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
-    <div><canvas id="defectWeightChart" height="300"></canvas></div>
+    <div style="height:340px;"><canvas id="defectWeightChart"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة الهالك — المنيف للأنابيب</footer>
@@ -1140,7 +1141,7 @@ new Chart(document.getElementById('defectCountChart'), {
     ]
   },
   options:{
-    responsive:true, maintainAspectRatio:true,
+    responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
       tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
@@ -1164,7 +1165,7 @@ new Chart(document.getElementById('defectWeightChart'), {
     ]
   },
   options:{
-    responsive:true, maintainAspectRatio:true,
+    responsive:true, maintainAspectRatio:false,
     plugins:{
       legend:{position:'top', labels:{font:{family:'Cairo',size:12}, padding:16, usePointStyle:true}},
       tooltip:{titleFont:{family:'Cairo'}, bodyFont:{family:'Cairo'}}
