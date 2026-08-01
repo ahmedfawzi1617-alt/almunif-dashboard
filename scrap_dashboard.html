@@ -1021,6 +1021,7 @@ function generateScrapReport(){
   const scrapPctPVC = (prodPVC || totalPVC) ? ((totalPVC/1000)/(prodPVC + totalPVC/1000)*100).toFixed(2)+'%' : '—';
   const scrapPctTotal = (prodTotal || grandTotal) ? ((grandTotal/1000)/(prodTotal + grandTotal/1000)*100).toFixed(2)+'%' : '—';
 
+  const BASE = location.href.substring(0, location.href.lastIndexOf('/')+1);
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1082,11 +1083,11 @@ function generateScrapReport(){
     tfoot tr.pct-row td{background:#f9f9f9 !important; color:#000 !important; border-top:2px double #000;}
     header .period, header .title{color:#000;}
     .report-section{page-break-after:always;}
-    .chart-page{page-break-inside:avoid;}
+    .chart-page{page-break-inside:avoid; height:calc(100vh - 20px);}
     .chart-page ~ .chart-page{page-break-before:always;}
     .chart-page:last-child{page-break-after:auto;}
-    .chart-page > div{width:auto; max-width:100% !important; padding:10px; height:auto !important;}
-    .chart-page canvas{width:100% !important; max-width:100% !important; height:auto !important;}
+    .chart-page > div{width:100% !important; max-width:100% !important; height:calc(100% - 52px) !important; padding:12px;}
+    .chart-page canvas{width:100% !important; max-width:100% !important; height:100% !important;}
   }
 </style>
 </head>
@@ -1094,7 +1095,7 @@ function generateScrapReport(){
   <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
  <div class="report-section">
   <header>
-    <img class="logo" src="icon-192.png" alt="logo">
+    <img class="logo" src="${BASE}icon-192.png" alt="logo">
     <div class="period" dir="ltr">${periodLabel}</div>
     <div class="title">Scrap And Defect details (PE- PVC)</div>
   </header>
@@ -1170,7 +1171,7 @@ new Chart(document.getElementById('defectCountChart'), {
     },
     layout:{padding:{top:90, left:10, right:10}},
     scales:{
-      x:{ticks:{font:{family:'Cairo',size:12}}, grid:{color:'rgba(0,0,0,0.08)'}},
+      x:{ticks:{font:{family:'Cairo',size:12}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
     }
   }
@@ -1194,7 +1195,7 @@ new Chart(document.getElementById('defectWeightChart'), {
     },
     layout:{padding:{top:140, left:10, right:10}},
     scales:{
-      x:{ticks:{font:{family:'Cairo',size:12}}, grid:{color:'rgba(0,0,0,0.08)'}},
+      x:{ticks:{font:{family:'Cairo',size:12}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
     }
   }
