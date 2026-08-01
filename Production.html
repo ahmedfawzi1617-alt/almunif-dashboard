@@ -952,8 +952,10 @@ getFiltered().map((d,i)=>[d,i]).sort((a,b)=>b[0].date.localeCompare(a[0].date) |
   footer{text-align:center; font-size:11px; color:#888; margin-top:26px; font-style:italic;}
   @media print{
     .print-bar{display:none;}
-    body{padding:14px 20px;}
+    body{padding:14px 20px; padding-top:150px;}
     a[href]:after{content:'';}
+    header{position:fixed; top:0; left:0; right:0; z-index:10; background:#fff; padding:6px 10px 4px; text-align:center; margin:0;}
+    header .logo{position:absolute; top:6px; right:8px; width:56px; height:56px;}
   }
 </style>
 </head>
@@ -1057,7 +1059,7 @@ function printPageHtml(content){
     table.summary-table th,table.summary-table td{border:1px solid #bbb;padding:6px 8px;text-align:center;}
     table.summary-table th{background:#D9DEEC;font-weight:700;}
     footer{text-align:center;font-size:11px;color:#888;margin-top:26px;font-style:italic;}
-    @media print{.print-bar{display:none;}body{padding:14px 20px;}}
+    @media print{.print-bar{display:none;}body{padding:14px 20px;padding-top:150px;}header{position:fixed;top:0;left:0;right:0;z-index:10;background:#fff;padding:6px 10px 4px;text-align:center;margin:0;}header .logo{position:absolute;top:6px;right:8px;width:56px;height:56px;}}
   </style></head><body>
   <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
   <header><img class="logo" src="${BASE}new logo PNG.png" alt="logo"><h1>شركة المنيف للأنابيب</h1><hr><h2>تقرير الإنتاج — ${now.toLocaleDateString('ar-EG')}</h2></header>

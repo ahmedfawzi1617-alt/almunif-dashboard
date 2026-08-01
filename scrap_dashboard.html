@@ -1066,8 +1066,12 @@ function generateScrapReport(){
   @page{size:A4 landscape; margin:10mm;}
   @media print{
     .print-bar{display:none;}
-    body{padding:10px 14px; color:#000;}
+    body{padding:10px 14px; padding-top:110px; color:#000;}
     table, .chart-page, canvas{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+    header{position:fixed; top:0; left:0; right:0; z-index:10; background:#fff; padding:8px 10px 6px; text-align:center; border-bottom:2px solid #1a3a5c; margin:0;}
+    header .logo{position:absolute; top:6px; right:8px; width:56px; height:56px;}
+    header .period{font-size:14px; font-weight:800; color:#1a3a5c; border-bottom:2px solid #1a3a5c;}
+    header .title{font-size:14px; font-weight:700; color:#1a3a5c;}
     table{border:3px double #444;}
     th, td{border:1px solid #999; color:#000; background:#fff !important;}
     td.pe-col, th.pe-col, td.pvc-col, th.pvc-col, td.total-col, th.total-col{border-left:3px double #555;}
@@ -1081,7 +1085,6 @@ function generateScrapReport(){
     tfoot tr.total-row td{background:#fff !important; color:#000 !important; border-top:2px double #000 !important; font-weight:900;}
     tfoot tr.prod-row td{background:#fff !important; color:#000 !important; border-top:1px solid #999;}
     tfoot tr.pct-row td{background:#f9f9f9 !important; color:#000 !important; border-top:2px double #000;}
-    header .period, header .title{color:#000;}
     .report-section{page-break-after:always;}
     .chart-page{page-break-inside:avoid; height:calc(100vh - 30px); display:flex; flex-direction:column;}
     .chart-page ~ .chart-page{page-break-before:always;}
@@ -1093,12 +1096,12 @@ function generateScrapReport(){
 </head>
 <body>
   <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
- <div class="report-section">
   <header>
     <img class="logo" src="${BASE}new logo PNG.png" alt="logo">
     <div class="period" dir="ltr">${periodLabel}</div>
     <div class="title">Scrap And Defect details (PE- PVC)</div>
   </header>
+  <div class="report-section">
   <table>
     <thead>
       <tr class="group-row">
@@ -1171,7 +1174,7 @@ new Chart(document.getElementById('defectCountChart'), {
     },
     layout:{padding:{top:50, left:10, right:10}},
     scales:{
-      x:{ticks:{font:{family:'Cairo',size:12}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
+      x:{ticks:{color:'#1a3a5c', font:{family:'Cairo',size:12, weight:'700'}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
     }
   }
@@ -1195,7 +1198,7 @@ new Chart(document.getElementById('defectWeightChart'), {
     },
     layout:{padding:{top:100, left:10, right:10}},
     scales:{
-      x:{ticks:{font:{family:'Cairo',size:12}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
+      x:{ticks:{color:'#1a3a5c', font:{family:'Cairo',size:12, weight:'700'}, autoSkip:false, maxRotation:60, minRotation:60}, grid:{color:'rgba(0,0,0,0.08)'}},
       y:{display:false}
     }
   }

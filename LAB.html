@@ -866,8 +866,10 @@ function exportReport(){
   footer{text-align:center; font-size:11px; color:#888; margin-top:26px; font-style:italic;}
   @media print{
     .print-bar{display:none;}
-    body{padding:14px 20px;}
+    body{padding:14px 20px; padding-top:150px;}
     a[href]:after{content:'';}
+    header{position:fixed; top:0; left:0; right:0; z-index:10; background:#fff; padding:6px 10px 4px; text-align:center; margin:0;}
+    header .logo{position:absolute; top:6px; right:8px; width:56px; height:56px;}
   }
 </style>
 </head>
