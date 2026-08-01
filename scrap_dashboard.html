@@ -366,42 +366,48 @@
     </div>
   </div>
 
-  <div class="card">
-    <h3>باريتو أسباب الهالك (وزن بالكجم)</h3>
-    <div class="hint">أعلى 10 أسباب — العمود المتراكم بيوضح النسبة التراكمية</div>
-    <div class="chart-box tall"><canvas id="paretoChart"></canvas></div>
-  </div>
-  <div class="card" style="margin-bottom:14px;">
-    <h3>مقياس الهالك مقابل الهدف الشهري</h3>
-    <div class="hint">نسبة الهالك للفترة المحددة</div>
-    <div class="chart-box tall gauge-wrap">
-      <canvas id="gaugeChart" style="max-height:230px;"></canvas>
-      <div class="gauge-val" id="gaugeVal">—</div>
-      <div class="gauge-lbl">من الهدف الشهري</div>
-      <div class="gauge-target" id="gaugeTarget">الهدف: — كجم/شهر</div>
+  <div class="grid">
+    <div class="card">
+      <h3>باريتو أسباب الهالك (وزن بالكجم)</h3>
+      <div class="hint">أعلى 10 أسباب — العمود المتراكم بيوضح النسبة التراكمية</div>
+      <div class="chart-box tall"><canvas id="paretoChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>مقياس الهالك مقابل الهدف الشهري</h3>
+      <div class="hint">نسبة الهالك للفترة المحددة</div>
+      <div class="chart-box tall gauge-wrap">
+        <canvas id="gaugeChart" style="max-height:230px;"></canvas>
+        <div class="gauge-val" id="gaugeVal">—</div>
+        <div class="gauge-lbl">من الهدف الشهري</div>
+        <div class="gauge-target" id="gaugeTarget">الهدف: — كجم/شهر</div>
+      </div>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:14px;">
-    <h3>الهالك حسب نوع المنتج</h3>
-    <div class="hint">PE مقابل PVC</div>
-    <div class="chart-box"><canvas id="productChart"></canvas></div>
-  </div>
-  <div class="card" style="margin-bottom:14px;">
-    <h3>اتجاه الهالك الشهري</h3>
-    <div class="hint">إجمالي الوزن بالكجم لكل شهر</div>
-    <div class="chart-box"><canvas id="trendChart"></canvas></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>الهالك حسب نوع المنتج</h3>
+      <div class="hint">PE مقابل PVC</div>
+      <div class="chart-box"><canvas id="productChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>اتجاه الهالك الشهري</h3>
+      <div class="hint">إجمالي الوزن بالكجم لكل شهر</div>
+      <div class="chart-box"><canvas id="trendChart"></canvas></div>
+    </div>
   </div>
 
-  <div class="card" style="margin-bottom:14px;">
-    <h3>أعلى 8 ماكينات من حيث الهالك</h3>
-    <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
-    <div class="chart-box"><canvas id="machineChart"></canvas></div>
-  </div>
-  <div class="card" style="margin-bottom:14px;">
-    <h3>أعلى 8 مقاسات هالك</h3>
-    <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
-    <div class="chart-box"><canvas id="sizeChart"></canvas></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>أعلى 8 ماكينات من حيث الهالك</h3>
+      <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
+      <div class="chart-box"><canvas id="machineChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>أعلى 8 مقاسات هالك</h3>
+      <div class="hint">مرتبة تنازليًا حسب إجمالي الوزن</div>
+      <div class="chart-box"><canvas id="sizeChart"></canvas></div>
+    </div>
   </div>
 
   <div class="card">
@@ -1055,14 +1061,16 @@ function generateScrapReport(){
     tfoot tr.prod-row td{background:#fff !important; color:#000 !important; border-top:1px solid #999;}
     tfoot tr.pct-row td{background:#f9f9f9 !important; color:#000 !important; border-top:2px double #000;}
     header .period, header .title{color:#000;}
-    .chart-page{border:2px solid #1a3a5c; border-radius:8px; padding:20px; margin:20px 0; page-break-inside:avoid;}
-    @media print{.chart-page{page-break-after:always;}}
-    @media print{.chart-page:last-child{page-break-after:auto;}}
+    .report-section{page-break-after:always;}
+    .chart-page{page-break-inside:avoid;}
+    .chart-page ~ .chart-page{page-break-before:always;}
+    .chart-page:last-child{page-break-after:auto;}
   }
 </style>
 </head>
 <body>
   <div class="print-bar"><button onclick="window.print()">🖨️ اطبع / احفظ PDF</button></div>
+ <div class="report-section">
  <header>
     <div class="period">${periodLabel}</div>
     <div class="title">Scrap And Defect details (PE- PVC)</div>
@@ -1104,15 +1112,16 @@ function generateScrapReport(){
       </tr>
     </tfoot>
   </table>
+  </div>
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
-    <div><canvas id="defectCountChart" height="340"></canvas></div>
+    <div><canvas id="defectCountChart" height="300"></canvas></div>
   </div>
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
-    <div><canvas id="defectWeightChart" height="340"></canvas></div>
+    <div><canvas id="defectWeightChart" height="300"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة الهالك — المنيف للأنابيب</footer>
