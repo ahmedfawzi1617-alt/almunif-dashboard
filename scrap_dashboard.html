@@ -597,6 +597,22 @@ function parseDate(str){
 }
 function pad2(n){ return String(n).padStart(2,'0'); }
 
+/* ---------- توليد فترة تلقائية من البيانات المفّلترة (1-Jan:31-Jul-2026) ---------- */
+function autoPeriodLabel(data){
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dates = (data||[]).map(r=>r.date).filter(Boolean).sort();
+  if(!dates.length) return 'الفترة الحالية';
+  const first = dates[0], last = dates[dates.length-1];
+  const fmt = d => {
+    const p = d.split('-');
+    const day = parseInt(p[2]);
+    const month = MONTHS_EN[parseInt(p[1])-1];
+    const year = p[0];
+    return day + '-' + month + '-' + year;
+  };
+  return first === last ? fmt(first) : fmt(first) + ' : ' + fmt(last);
+}
+
 /* ---------- فلاتر ---------- */
 /* ---------- فلاتر ذكية (Smart Cascading Filters) ----------
    كل فلتر بيعرض بس القيم اللي فعلاً موجودة بناءً على باقي الفلاتر
@@ -953,7 +969,8 @@ function generateScrapReport(){
   const data = getFiltered();
   if(!data.length){ alert('مفيش بيانات هالك مطابقة للفلتر الحالي.'); return; }
 
-  const periodLabel = document.getElementById('reportPeriodLabel').value.trim() || 'الفترة الحالية';
+  const periodLabel = document.getElementById('reportPeriodLabel').value.trim() ||
+    autoPeriodLabel(data);
   const peVal = document.getElementById('reportProdPE').value;
   const pvcVal = document.getElementById('reportProdPVC').value;
   const prodPE = (peVal && peVal!=='—') ? parseFloat(peVal) : 0;
@@ -1117,12 +1134,12 @@ function generateScrapReport(){
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
-    <div style="height:340px;"><canvas id="defectCountChart"></canvas></div>
+    <div style="max-width:700px; margin:0 auto;"><canvas id="defectCountChart"></canvas></div>
   </div>
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
-    <div style="height:340px;"><canvas id="defectWeightChart"></canvas></div>
+    <div style="max-width:700px; margin:0 auto;"><canvas id="defectWeightChart"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة الهالك — المنيف للأنابيب</footer>
