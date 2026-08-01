@@ -802,6 +802,7 @@ function exportReport(){
       <td>${esc(d.customer)}</td><td>${esc(d.qty_pc)}</td><td>${d.status==='done'?'مكتمل':'جاري التنفيذ'}</td>
     </tr>`).join('');
 
+  const BASE = location.href.substring(0, location.href.lastIndexOf('/')+1);
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -847,7 +848,7 @@ function exportReport(){
     <button onclick="window.print()">🖨️ اطبع / احفظ PDF</button>
   </div>
   <header>
-    <img class="logo" src="icon-192.png" alt="logo">
+    <img class="logo" src="${BASE}new logo PNG.png" alt="logo">
     <h1>شركة المنيف للأنابيب</h1>
     <div class="dept">إدارة الإنتاج</div>
     <hr>
