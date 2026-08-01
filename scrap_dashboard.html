@@ -1038,7 +1038,7 @@ function generateScrapReport(){
   header{text-align:center; margin-bottom:12px;}
   header .period{font-size:14px; font-weight:800; color:#1a3a5c; margin-bottom:2px; border-bottom:2px solid #1a3a5c; display:inline-block; padding-bottom:2px;}
   header .title{font-size:15px; font-weight:700; color:#1a3a5c; margin-top:4px;}
-  table{width:auto; margin:0 auto; border-collapse:collapse; font-size:10px; border:3px double #555;}
+  table{width:100%; border-collapse:collapse; font-size:10px; border:3px double #555;}
   th, td{border:1px solid #999; padding:3px 5px; text-align:center; color:#111;}
   td.pe-col, th.pe-col{border-left:3px double #2e8b57;}
   td.pvc-col, th.pvc-col{border-left:3px double #7c3aed;}
@@ -1133,12 +1133,12 @@ function generateScrapReport(){
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">عدد مرات تكرار العيوب — PE vs PVC</h3>
-    <div style="max-width:700px; margin:0 auto; height:450px;"><canvas id="defectCountChart"></canvas></div>
+    <div style="width:100%; height:calc(100vh - 100px);"><canvas id="defectCountChart"></canvas></div>
   </div>
 
   <div class="chart-page">
     <h3 style="text-align:center; font-size:14px; color:#1a3a5c; margin-bottom:10px;">وزن العيوب — PE vs PVC (كجم)</h3>
-    <div style="max-width:700px; margin:0 auto; height:450px;"><canvas id="defectWeightChart"></canvas></div>
+    <div style="width:100%; height:calc(100vh - 100px);"><canvas id="defectWeightChart"></canvas></div>
   </div>
 
   <footer>تم إنشاء هذا التقرير تلقائيًا من لوحة الهالك — المنيف للأنابيب</footer>
@@ -1150,9 +1150,9 @@ new Chart(document.getElementById('defectCountChart'), {
   data:{
     labels,
     datasets:[
-      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peCount))}, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
+      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peCount))}, backgroundColor:'#1e6fd9', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}},
-      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcCount))}, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
+      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcCount))}, backgroundColor:'#f2a93b', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>v||''}}
     ]
   },
@@ -1165,7 +1165,7 @@ new Chart(document.getElementById('defectCountChart'), {
     layout:{padding:{top:28}},
     scales:{
       x:{ticks:{font:{family:'Cairo',size:11}, maxRotation:90, minRotation:90, autoSkip:false}, grid:{display:false}},
-      y:{beginAtZero:true, ticks:{font:{family:'Cairo',size:10}}, grid:{color:'#ddd'}}
+      y:{display:false}
     }
   }
 });
@@ -1174,9 +1174,9 @@ new Chart(document.getElementById('defectWeightChart'), {
   data:{
     labels,
     datasets:[
-      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peWeight))}, backgroundColor:'#2e8b57', borderRadius:6, maxBarThickness:28,
+      {label:'PE', data:${JSON.stringify(rows.map(r=>r.peWeight))}, backgroundColor:'#1e6fd9', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}},
-      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcWeight))}, backgroundColor:'#7c3aed', borderRadius:6, maxBarThickness:28,
+      {label:'PVC', data:${JSON.stringify(rows.map(r=>r.pvcWeight))}, backgroundColor:'#f2a93b', borderRadius:6, maxBarThickness:28,
         datalabels:{color:'#0a1628', font:{family:'Cairo', weight:'800', size:12}, anchor:'end', align:'top', offset:4, clamp:true, clip:false, display:'auto', formatter:v=>Math.round(v)+' kg'}}
     ]
   },
@@ -1189,7 +1189,7 @@ new Chart(document.getElementById('defectWeightChart'), {
     layout:{padding:{top:28}},
     scales:{
       x:{ticks:{font:{family:'Cairo',size:11}, maxRotation:90, minRotation:90, autoSkip:false}, grid:{display:false}},
-      y:{beginAtZero:true, ticks:{font:{family:'Cairo',size:10}}, grid:{color:'#ddd'}}
+      y:{display:false}
     }
   }
 });
