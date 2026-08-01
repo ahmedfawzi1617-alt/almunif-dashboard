@@ -1085,6 +1085,8 @@ function generateScrapReport(){
     .chart-page{page-break-inside:avoid;}
     .chart-page ~ .chart-page{page-break-before:always;}
     .chart-page:last-child{page-break-after:auto;}
+    .chart-page > div{width:auto; max-width:100% !important; padding:10px; height:auto !important;}
+    .chart-page canvas{width:100% !important; max-width:100% !important; height:auto !important;}
   }
 </style>
 </head>
