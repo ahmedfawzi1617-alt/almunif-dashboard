@@ -587,9 +587,10 @@ function parseDate(str){
   m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if(m){
     let [, a, b, yr] = m;
-    let mo = parseInt(a), da = parseInt(b);
-    // لو أي رقم أكبر من 12 يبقى هو أكيد اليوم، مش الشهر (بيحل مشكلة صيغ التاريخ المختلفة بين الشيتات)
-    if(mo > 12 && da <= 12){ const t=mo; mo=da; da=t; }
+    let da = parseInt(a), mo = parseInt(b);
+    // صيغة DD/MM/YYYY افتراضية (يوم/شهر/سنة)
+    // لو اليوم أكبر من 31 يبقى هو أكيد الشهر، مش اليوم (صيغة أمريكية MM/DD)
+    if(da > 31 && mo <= 12){ const t=da; da=mo; mo=t; }
     if(yr.length===2) yr = (parseInt(yr)>50 ? '19' : '20') + yr;
     return `${yr}-${pad2(mo)}-${pad2(da)}`;
   }
