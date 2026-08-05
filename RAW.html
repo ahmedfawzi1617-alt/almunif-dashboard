@@ -509,6 +509,11 @@ function populateFilters(){
 
   const yearScope = scopedFor('yr');
   fillSelect('fYear', [...new Set(yearScope.map(r=>r.date.slice(0,4)))].sort(), v=>v, ' Year');
+  const yearSel = document.getElementById('fYear');
+  if((yearSel.value || 'all') === 'all'){
+    const curY = String(new Date().getFullYear());
+    if([...yearSel.options].some(o => o.value === curY)) yearSel.value = curY;
+  }
 
   const monthScope = scopedFor('m');
   fillSelect('fMonth', [...new Set(monthScope.map(r=>r.date.slice(0,7)))].sort(), m=>{ const [y,mo]=m.split('-'); return (MONTHS_AR[parseInt(mo)]||mo) + ' ' + y; }, 'Month ');
